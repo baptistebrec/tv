@@ -1,0 +1,122 @@
+.hub-root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+/* ── Header ── */
+.hub-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.hub-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0 0 8px;
+  color: #f1f5f9;
+}
+
+.hub-subtitle {
+  font-size: 1.2rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* ── Game grid ── */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 780px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Game card button ── */
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 16px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+  background: color-mix(in srgb, var(--card-color) 18%, #1e293b);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover, &:focus-visible {
+    transform: translateY(-4px) scale(1.03);
+    border-color: var(--card-color);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--card-color) 40%, transparent);
+    outline: none;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.game-card-icon {
+  font-size: 3.2rem;
+  line-height: 1;
+}
+
+.game-card-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  letter-spacing: 0.3px;
+}
+
+/* ── Game placeholder ── */
+.game-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.game-placeholder-icon {
+  font-size: 5rem;
+}
+
+.game-placeholder h1 {
+  font-size: 2.5rem;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.game-placeholder p {
+  color: #94a3b8;
+  font-size: 1.1rem;
+}
+
+.back-btn {
+  margin-top: 16px;
+  padding: 12px 28px;
+  border-radius: 12px;
+  border: 2px solid #475569;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover {
+    border-color: #94a3b8;
+    background: #1e293b;
+  }
+}
