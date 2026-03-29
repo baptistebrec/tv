@@ -103,6 +103,31 @@
   font-size: 1.1rem;
 }
 
+.player-count-picker {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.player-count-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  border: 2px solid #475569;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 1.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    background: #1e293b;
+  }
+}
+
 .back-btn {
   margin-top: 16px;
   padding: 12px 28px;

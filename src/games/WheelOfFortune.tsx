@@ -3,7 +3,7 @@ import "./WheelOfFortune.css";
 
 const WHEEL_VALUES = [100, 200, 300, 500, 1000, 2500, 5000, 500];
 const PHRASES = [
-  "HELLO WORLD",
+  // "HELLO WORLD",
   "CODING IS FUN",
   // "WHEEL OF FORTUNE",
   // "JAVASCRIPT ROCKS",
@@ -12,8 +12,6 @@ const PHRASES = [
   // "GAME OVER",
   // "YOU WIN",
 ];
-
-const PLAYERS = ["Player 1", "Player 2"];
 
 const SIZE = 320;
 const CX = SIZE / 2;
@@ -55,7 +53,17 @@ const COLORS = [
   "#f43f5e",
 ];
 
-export function WheelOfFortune({ onBack }: { onBack: () => void }) {
+export function WheelOfFortune({
+  playerCount,
+  onBack,
+}: {
+  playerCount: number;
+  onBack: () => void;
+}) {
+  const PLAYERS = Array.from(
+    { length: playerCount },
+    (_, i) => `Player ${i + 1}`,
+  );
   const [phrase] = useState(
     () => PHRASES[Math.floor(Math.random() * PHRASES.length)],
   );
@@ -69,9 +77,9 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
   const [rotation, setRotation] = useState(0);
   const [gameWon, setGameWon] = useState(false);
 
-  const words = phrase.split(" ").map((word) =>
-    word.split("").map((c) => (guessed.has(c) ? c : "_"))
-  );
+  const words = phrase
+    .split(" ")
+    .map((word) => word.split("").map((c) => (guessed.has(c) ? c : "_")));
 
   function spin() {
     if (spinning || !needsSpin || gameWon) return;
@@ -161,7 +169,9 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
       <div className="wof-phrase">
         <div className="wof-phrase-text">
           {words.flatMap((letters, wi) => [
-            ...(wi > 0 ? [<span key={`sep-${wi}`} className="word-sep" />] : []),
+            ...(wi > 0
+              ? [<span key={`sep-${wi}`} className="word-sep" />]
+              : []),
             <span key={`word-${wi}`} className="word-group">
               {letters.map((c, ci) => (
                 <span key={ci} className={`char ${c === "_" ? "blank" : ""}`}>
@@ -262,7 +272,9 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
             <h2>{winner} Won!</h2>
             <div className="wof-modal-scores">
               {PLAYERS.map((name, i) => (
-                <p key={i}>{name}: ${scores[i]}</p>
+                <p key={i}>
+                  {name}: ${scores[i]}
+                </p>
               ))}
             </div>
             <button className="wof-modal-btn" onClick={reset}>

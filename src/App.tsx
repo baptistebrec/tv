@@ -14,9 +14,37 @@ const GAMES = [
 
 function App() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  const [wheelPlayers, setWheelPlayers] = useState<number | null>(null);
+
+  if (activeGame === "wheel" && wheelPlayers) {
+    return (
+      <WheelOfFortune
+        playerCount={wheelPlayers}
+        onBack={() => { setActiveGame(null); setWheelPlayers(null); }}
+      />
+    );
+  }
 
   if (activeGame === "wheel") {
-    return <WheelOfFortune onBack={() => setActiveGame(null)} />;
+    return (
+      <div className="hub-root">
+        <div className="game-placeholder">
+          <span className="game-placeholder-icon">🎡</span>
+          <h1>Fortune Wheel</h1>
+          <p>How many players?</p>
+          <div className="player-count-picker">
+            {[2, 3, 4].map((n) => (
+              <button key={n} className="player-count-btn" onClick={() => setWheelPlayers(n)}>
+                {n}
+              </button>
+            ))}
+          </div>
+          <button className="back-btn" onClick={() => setActiveGame(null)}>
+            ← Back to Hub
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (activeGame) {
