@@ -79,7 +79,7 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
     setCurrentValue(0);
 
     const segIdx = Math.floor(Math.random() * WHEEL_VALUES.length);
-    const targetAngle = segIdx * SEG_ANGLE + SEG_ANGLE / 2;
+    const targetAngle = (360 - (segIdx * SEG_ANGLE + SEG_ANGLE / 2)) % 360;
     const currentMod = accumulated.current % 360;
     const extra = (targetAngle - currentMod + 360) % 360;
     const finalRotation = accumulated.current + 5 * 360 + extra;
