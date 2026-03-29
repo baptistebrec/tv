@@ -6,17 +6,28 @@ type WheelSegment = number | "BANKRUPT";
 const WHEEL_NORMAL: WheelSegment[] = [100, 200, 300, 500, 1000, 2500, 5000, 500];
 const WHEEL_FINAL: WheelSegment[] = [500, 1000, 2500, 5000, "BANKRUPT", 2500, 1000, 500];
 
-const PHRASES = [
-  "CODING IS FUN",
-  "HELLO WORLD",
-  "WHEEL OF FORTUNE",
-  "JAVASCRIPT ROCKS",
-  "SPIN THE WHEEL",
+const PHRASES: { text: string; theme: string }[] = [
+  { text: "CODING IS FUN",     theme: "Activity" },
+  { text: "HELLO WORLD",       theme: "Famous phrase" },
+  { text: "WHEEL OF FORTUNE",  theme: "TV Show" },
+  { text: "JAVASCRIPT ROCKS",  theme: "Technology" },
+  { text: "SPIN THE WHEEL",    theme: "Action" },
+  { text: "THE EIFFEL TOWER",  theme: "Landmark" },
+  { text: "PIZZA MARGHERITA",  theme: "Food" },
+  { text: "SOLAR SYSTEM",      theme: "Science" },
 ];
 
-const MYSTERY_WORDS = [
-  "FORTUNE", "WHEEL", "VICTORY", "CHAMPION", "PUZZLE",
-  "MYSTERY", "JACKPOT", "SPINNER", "LETTERS", "WINNER",
+const MYSTERY_WORDS: { text: string; theme: string }[] = [
+  { text: "FORTUNE",  theme: "Concept" },
+  { text: "WHEEL",    theme: "Object" },
+  { text: "VICTORY",  theme: "Feeling" },
+  { text: "CHAMPION", theme: "Person" },
+  { text: "PUZZLE",   theme: "Game" },
+  { text: "MYSTERY",  theme: "Concept" },
+  { text: "JACKPOT",  theme: "Reward" },
+  { text: "SPINNER",  theme: "Object" },
+  { text: "LETTERS",  theme: "Language" },
+  { text: "WINNER",   theme: "Person" },
 ];
 
 const TOTAL_ROUNDS = 4;
@@ -72,11 +83,12 @@ function pickMysteryWords() {
 
 type RevealPhaseProps = {
   word: string;
+  theme: string;
   players: string[];
   onDone: (startingPlayer: number) => void;
 };
 
-function RevealPhase({ word, players, onDone }: RevealPhaseProps) {
+function RevealPhase({ word, theme, players, onDone }: RevealPhaseProps) {
   const shuffledIndices = useRef<number[]>(
     [...Array(word.length).keys()].sort(() => Math.random() - 0.5)
   );
@@ -143,6 +155,7 @@ function RevealPhase({ word, players, onDone }: RevealPhaseProps) {
     <div className="wof-reveal-root">
       <h2 className="wof-reveal-title">Who goes first?</h2>
       <p className="wof-reveal-subtitle">Guess the mystery word!</p>
+        <div className="wof-theme-label">Theme: {theme}</div>
 
       <div className="wof-reveal-word">
         {displayLetters.map((c, i) => (
@@ -229,7 +242,7 @@ export function WheelOfFortune({
 
   const isFinalRound = round === TOTAL_ROUNDS;
   const wheelValues = isFinalRound ? WHEEL_FINAL : WHEEL_NORMAL;
-  const phrase = phrases[round - 1];
+  const { text: phrase, theme } = phrases[round - 1];
 
   const words = phrase
     .split(" ")
@@ -403,7 +416,8 @@ export function WheelOfFortune({
           </div>
         </div>
         <RevealPhase
-          word={mysteryWords[round - 1]}
+          word={mysteryWords[round - 1].text}
+          theme={mysteryWords[round - 1].theme}
           players={PLAYERS}
           onDone={handleRevealDone}
         />
@@ -438,6 +452,7 @@ export function WheelOfFortune({
       </div>
 
       <div className="wof-phrase">
+        <div className="wof-theme-label">Theme: {theme}</div>
         <div className="wof-phrase-text">
           {words.flatMap((letters, wi) => [
             ...(wi > 0 ? [<span key={`sep-${wi}`} className="word-sep" />] : []),

@@ -97,6 +97,15 @@
 }
 
 /* Phrase display */
+.wof-theme-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
 .wof-phrase {
   width: 100%;
   max-width: 500px;
