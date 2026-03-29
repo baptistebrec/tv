@@ -1,23 +1,37 @@
 import { useState, useRef } from "react";
 import "./WheelOfFortune.css";
 
-const WHEEL_VALUES = [100, 200, 300, 500, 1000, 2500, 5000, 500];
-const PHRASES = [
-  // "HELLO WORLD",
-  "CODING IS FUN",
-  // "WHEEL OF FORTUNE",
-  // "JAVASCRIPT ROCKS",
-  // "SPIN THE WHEEL",
-  // "LUCKY GUESS",
-  // "GAME OVER",
-  // "YOU WIN",
+type WheelSegment = number | "BANKRUPT";
+
+const WHEEL_NORMAL: WheelSegment[] = [
+  100, 200, 300, 500, 1000, 2500, 5000, 500,
+];
+const WHEEL_FINAL: WheelSegment[] = [
+  500,
+  1000,
+  2500,
+  5000,
+  "BANKRUPT",
+  2500,
+  1000,
+  500,
 ];
 
+const PHRASES = [
+  // "CODING IS FUN",
+  "AA BB",
+  "a bc",
+  // "HELLO WORLD",
+  // "WHEEL OF FORTUNE",
+  // "JAVASCRIPT ROCKS",
+];
+
+const TOTAL_ROUNDS = 4;
 const SIZE = 320;
 const CX = SIZE / 2;
 const CY = SIZE / 2;
 const R = 140;
-const SEG_ANGLE = 360 / WHEEL_VALUES.length;
+const SEG_ANGLE = 360 / WHEEL_NORMAL.length;
 
 function toRad(deg: number) {
   return (deg * Math.PI) / 180;
@@ -53,6 +67,12 @@ const COLORS = [
   "#f43f5e",
 ];
 
+function pickPhrases() {
+  return Array.from({ length: TOTAL_ROUNDS }, () =>
+    Math.floor(Math.random() * PHRASES.length),
+  );
+}
+
 export function WheelOfFortune({
   playerCount,
   onBack,
@@ -64,29 +84,39 @@ export function WheelOfFortune({
     { length: playerCount },
     (_, i) => `Player ${i + 1}`,
   );
-  const [phrase] = useState(
-    () => PHRASES[Math.floor(Math.random() * PHRASES.length)],
-  );
+
+  const [phraseIndices, setPhraseIndices] = useState(pickPhrases);
+  const [round, setRound] = useState(1);
   const [guessed, setGuessed] = useState<Set<string>>(new Set());
   const [spinning, setSpinning] = useState(false);
-  const [currentValue, setCurrentValue] = useState(0);
-  const [scores, setScores] = useState<number[]>(PLAYERS.map(() => 0));
+  const [currentValue, setCurrentValue] = useState<WheelSegment | null>(null);
+  const [cagnotte, setCagnotte] = useState<number[]>(() =>
+    PLAYERS.map(() => 0),
+  );
+  const [roundScores, setRoundScores] = useState<number[]>(() =>
+    PLAYERS.map(() => 0),
+  );
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [needsSpin, setNeedsSpin] = useState(true);
   const accumulated = useRef(0);
   const [rotation, setRotation] = useState(0);
-  const [gameWon, setGameWon] = useState(false);
+  const [betweenRounds, setBetweenRounds] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
+  const isFinalRound = round === TOTAL_ROUNDS;
+  const wheelValues = isFinalRound ? WHEEL_FINAL : WHEEL_NORMAL;
+  const phrase = PHRASES[phraseIndices[round - 1]];
 
   const words = phrase
     .split(" ")
     .map((word) => word.split("").map((c) => (guessed.has(c) ? c : "_")));
 
   function spin() {
-    if (spinning || !needsSpin || gameWon) return;
+    if (spinning || !needsSpin || betweenRounds || gameOver) return;
     setSpinning(true);
-    setCurrentValue(0);
+    setCurrentValue(null);
 
-    const segIdx = Math.floor(Math.random() * WHEEL_VALUES.length);
+    const segIdx = Math.floor(Math.random() * wheelValues.length);
     const targetAngle = (360 - (segIdx * SEG_ANGLE + SEG_ANGLE / 2)) % 360;
     const currentMod = accumulated.current % 360;
     const extra = (targetAngle - currentMod + 360) % 360;
@@ -97,13 +127,35 @@ export function WheelOfFortune({
 
     setTimeout(() => {
       setSpinning(false);
-      setCurrentValue(WHEEL_VALUES[segIdx]);
-      setNeedsSpin(false);
+      const landed = wheelValues[segIdx];
+      setCurrentValue(landed);
+
+      if (landed === "BANKRUPT") {
+        // wipe cagnotte, pass turn immediately
+        setCagnotte((prev) => {
+          const next = [...prev];
+          next[currentPlayer] = 0;
+          return next;
+        });
+        setNeedsSpin(true);
+        setCurrentPlayer((p) => (p + 1) % PLAYERS.length);
+      } else {
+        setNeedsSpin(false);
+      }
     }, 3500);
   }
 
   function guessLetter(letter: string) {
-    if (guessed.has(letter) || spinning || needsSpin || gameWon) return;
+    if (
+      guessed.has(letter) ||
+      spinning ||
+      needsSpin ||
+      currentValue === null ||
+      currentValue === "BANKRUPT" ||
+      betweenRounds ||
+      gameOver
+    )
+      return;
 
     const newGuessed = new Set(guessed);
     newGuessed.add(letter);
@@ -111,39 +163,70 @@ export function WheelOfFortune({
 
     if (phrase.includes(letter)) {
       const count = Array.from(phrase).filter((c) => c === letter).length;
-      const newScores = [...scores];
-      newScores[currentPlayer] += count * currentValue;
-      setScores(newScores);
+      const newRoundScores = [...roundScores];
+      newRoundScores[currentPlayer] += count * (currentValue as number);
+      setRoundScores(newRoundScores);
 
       if (phrase.split("").every((c) => c === " " || newGuessed.has(c))) {
-        setGameWon(true);
+        // Phrase solved — winner banks their round score
+        const newCagnotte = [...cagnotte];
+        newCagnotte[currentPlayer] += newRoundScores[currentPlayer];
+        setCagnotte(newCagnotte);
+
+        if (round === TOTAL_ROUNDS) {
+          setGameOver(true);
+        } else {
+          setBetweenRounds(true);
+        }
       } else {
-        // correct guess → player spins again
-        setCurrentValue(0);
+        // Correct guess, spin again
+        setCurrentValue(null);
         setNeedsSpin(true);
       }
     } else {
-      // wrong guess → next player's turn
-      setCurrentValue(0);
+      // Wrong guess — next player
+      setCurrentValue(null);
       setNeedsSpin(true);
       setCurrentPlayer((p) => (p + 1) % PLAYERS.length);
     }
   }
 
-  function reset() {
+  function startNextRound() {
+    setRound((r) => r + 1);
     setGuessed(new Set());
-    setScores(PLAYERS.map(() => 0));
+    setRoundScores(PLAYERS.map(() => 0));
+    setCurrentValue(null);
+    setNeedsSpin(true);
     setCurrentPlayer(0);
-    setCurrentValue(0);
+    setBetweenRounds(false);
+    setRotation(0);
+    accumulated.current = 0;
+  }
+
+  function reset() {
+    setPhraseIndices(pickPhrases());
+    setRound(1);
+    setGuessed(new Set());
+    setCagnotte(PLAYERS.map(() => 0));
+    setRoundScores(PLAYERS.map(() => 0));
+    setCurrentPlayer(0);
+    setCurrentValue(null);
     setNeedsSpin(true);
     setRotation(0);
     accumulated.current = 0;
-    setGameWon(false);
+    setBetweenRounds(false);
+    setGameOver(false);
   }
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const unguessed = alphabet.filter((l) => !guessed.has(l));
-  const winner = gameWon ? PLAYERS[currentPlayer] : null;
+  const winner = gameOver
+    ? PLAYERS[cagnotte.indexOf(Math.max(...cagnotte))]
+    : null;
+
+  const segColors = wheelValues.map((v, i) =>
+    v === "BANKRUPT" ? "#1e293b" : COLORS[i % COLORS.length],
+  );
 
   return (
     <div className="wof-root">
@@ -153,14 +236,22 @@ export function WheelOfFortune({
 
       <div className="wof-header">
         <h1 className="wof-title">🎡 Wheel of Fortune</h1>
+        <div className={`wof-round-label ${isFinalRound ? "final" : ""}`}>
+          {isFinalRound ? "🔥 FINAL ROUND" : `Round ${round} / ${TOTAL_ROUNDS}`}
+        </div>
         <div className="wof-players">
           {PLAYERS.map((name, i) => (
             <div
               key={i}
-              className={`wof-player ${i === currentPlayer && !gameWon ? "active" : ""}`}
+              className={`wof-player ${i === currentPlayer && !betweenRounds && !gameOver ? "active" : ""}`}
             >
               <span className="wof-player-name">{name}</span>
-              <span className="wof-player-score">${scores[i]}</span>
+              <span className="wof-player-score">${cagnotte[i]}</span>
+              {roundScores[i] > 0 && (
+                <span className="wof-player-round-score">
+                  +${roundScores[i]}
+                </span>
+              )}
             </div>
           ))}
         </div>
@@ -193,13 +284,13 @@ export function WheelOfFortune({
             viewBox={`0 0 ${SIZE} ${SIZE}`}
             style={{ transform: `rotate(${rotation}deg)` }}
           >
-            {WHEEL_VALUES.map((val, i) => {
+            {wheelValues.map((val, i) => {
               const { x, y, rotate } = labelTransform(i);
               return (
                 <g key={i}>
                   <path
                     d={segmentPath(i)}
-                    fill={COLORS[i]}
+                    fill={segColors[i]}
                     stroke="#0f172a"
                     strokeWidth={2}
                   />
@@ -207,13 +298,13 @@ export function WheelOfFortune({
                     x={x}
                     y={y}
                     fill="#fff"
-                    fontSize={11}
+                    fontSize={val === "BANKRUPT" ? 8 : 11}
                     fontWeight="700"
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(${rotate}, ${x}, ${y})`}
                   >
-                    ${val}
+                    {val === "BANKRUPT" ? "BANKRUPT" : `$${val}`}
                   </text>
                 </g>
               );
@@ -241,13 +332,16 @@ export function WheelOfFortune({
           <button
             className="wof-spin-btn"
             onClick={spin}
-            disabled={spinning || !needsSpin || gameWon}
+            disabled={spinning || !needsSpin || betweenRounds || gameOver}
           >
             {spinning ? "Spinning…" : "SPIN"}
           </button>
 
-          {currentValue > 0 && (
+          {currentValue !== null && currentValue !== "BANKRUPT" && (
             <div className="wof-prize">+${currentValue}</div>
+          )}
+          {currentValue === "BANKRUPT" && (
+            <div className="wof-prize bankrupt">BANKRUPT!</div>
           )}
 
           <div className="wof-letters">
@@ -265,15 +359,36 @@ export function WheelOfFortune({
         </div>
       </div>
 
-      {gameWon && (
+      {betweenRounds && (
         <div className="wof-modal">
           <div className="wof-modal-content">
             <div className="wof-modal-emoji">🎉</div>
-            <h2>{winner} Won!</h2>
+            <h2>Round {round} Over!</h2>
             <div className="wof-modal-scores">
               {PLAYERS.map((name, i) => (
                 <p key={i}>
-                  {name}: ${scores[i]}
+                  {name}: ${cagnotte[i]}
+                </p>
+              ))}
+            </div>
+            <button className="wof-modal-btn" onClick={startNextRound}>
+              {round + 1 === TOTAL_ROUNDS
+                ? "🔥 Final Round!"
+                : `Round ${round + 1} →`}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {gameOver && (
+        <div className="wof-modal">
+          <div className="wof-modal-content">
+            <div className="wof-modal-emoji">🏆</div>
+            <h2>{winner} Wins!</h2>
+            <div className="wof-modal-scores">
+              {PLAYERS.map((name, i) => (
+                <p key={i}>
+                  {name}: ${cagnotte[i]}
                 </p>
               ))}
             </div>

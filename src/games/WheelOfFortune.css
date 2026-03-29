@@ -37,6 +37,21 @@
   margin: 0 0 8px;
 }
 
+.wof-round-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+
+  &.final {
+    color: #ef4444;
+    font-size: 1.1rem;
+    animation: wof-pop 0.4s ease;
+  }
+}
+
 .wof-players {
   display: flex;
   gap: 24px;
@@ -73,6 +88,12 @@
   font-size: 1.4rem;
   font-weight: 800;
   color: #fbbf24;
+}
+
+.wof-player-round-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #10b981;
 }
 
 /* Phrase display */
@@ -221,6 +242,10 @@
   font-weight: 800;
   color: #10b981;
   animation: wof-pop 0.35s ease;
+
+  &.bankrupt {
+    color: #ef4444;
+  }
 }
 
 @keyframes wof-pop {
