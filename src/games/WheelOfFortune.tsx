@@ -5,18 +5,6 @@ const WHEEL_VALUES = [100, 200, 300, 500, 1000, 2500, 5000, 500];
 const PHRASES = [
   "HELLO WORLD",
   "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
-  "CODING IS FUN",
   // "WHEEL OF FORTUNE",
   // "JAVASCRIPT ROCKS",
   // "SPIN THE WHEEL",
@@ -24,6 +12,8 @@ const PHRASES = [
   // "GAME OVER",
   // "YOU WIN",
 ];
+
+const PLAYERS = ["Player 1", "Player 2"];
 
 const SIZE = 320;
 const CX = SIZE / 2;
@@ -72,7 +62,9 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
   const [guessed, setGuessed] = useState<Set<string>>(new Set());
   const [spinning, setSpinning] = useState(false);
   const [currentValue, setCurrentValue] = useState(0);
-  const [score, setScore] = useState(0);
+  const [scores, setScores] = useState<number[]>(PLAYERS.map(() => 0));
+  const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [needsSpin, setNeedsSpin] = useState(true);
   const accumulated = useRef(0);
   const [rotation, setRotation] = useState(0);
   const [gameWon, setGameWon] = useState(false);
@@ -81,10 +73,8 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
     word.split("").map((c) => (guessed.has(c) ? c : "_"))
   );
 
-  const isWon = phrase.split("").every((c) => c === " " || guessed.has(c));
-
   function spin() {
-    if (spinning || gameWon) return;
+    if (spinning || !needsSpin || gameWon) return;
     setSpinning(true);
     setCurrentValue(0);
 
@@ -100,11 +90,12 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
     setTimeout(() => {
       setSpinning(false);
       setCurrentValue(WHEEL_VALUES[segIdx]);
+      setNeedsSpin(false);
     }, 3500);
   }
 
   function guessLetter(letter: string) {
-    if (guessed.has(letter) || spinning || gameWon) return;
+    if (guessed.has(letter) || spinning || needsSpin || gameWon) return;
 
     const newGuessed = new Set(guessed);
     newGuessed.add(letter);
@@ -112,20 +103,31 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
 
     if (phrase.includes(letter)) {
       const count = Array.from(phrase).filter((c) => c === letter).length;
-      setScore((s) => s + count * currentValue);
+      const newScores = [...scores];
+      newScores[currentPlayer] += count * currentValue;
+      setScores(newScores);
 
       if (phrase.split("").every((c) => c === " " || newGuessed.has(c))) {
         setGameWon(true);
+      } else {
+        // correct guess → player spins again
+        setCurrentValue(0);
+        setNeedsSpin(true);
       }
     } else {
+      // wrong guess → next player's turn
       setCurrentValue(0);
+      setNeedsSpin(true);
+      setCurrentPlayer((p) => (p + 1) % PLAYERS.length);
     }
   }
 
   function reset() {
     setGuessed(new Set());
-    setScore(0);
+    setScores(PLAYERS.map(() => 0));
+    setCurrentPlayer(0);
     setCurrentValue(0);
+    setNeedsSpin(true);
     setRotation(0);
     accumulated.current = 0;
     setGameWon(false);
@@ -133,6 +135,7 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const unguessed = alphabet.filter((l) => !guessed.has(l));
+  const winner = gameWon ? PLAYERS[currentPlayer] : null;
 
   return (
     <div className="wof-root">
@@ -142,7 +145,17 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
 
       <div className="wof-header">
         <h1 className="wof-title">🎡 Wheel of Fortune</h1>
-        <div className="wof-score">Score: {score}</div>
+        <div className="wof-players">
+          {PLAYERS.map((name, i) => (
+            <div
+              key={i}
+              className={`wof-player ${i === currentPlayer && !gameWon ? "active" : ""}`}
+            >
+              <span className="wof-player-name">{name}</span>
+              <span className="wof-player-score">${scores[i]}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="wof-phrase">
@@ -207,10 +220,18 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
         </div>
 
         <div className="wof-controls">
+          <div className="wof-turn-label">
+            {spinning
+              ? "Spinning…"
+              : needsSpin
+                ? `${PLAYERS[currentPlayer]}: Spin the wheel!`
+                : `${PLAYERS[currentPlayer]}: Choose a letter!`}
+          </div>
+
           <button
             className="wof-spin-btn"
             onClick={spin}
-            disabled={spinning || gameWon}
+            disabled={spinning || !needsSpin || gameWon}
           >
             {spinning ? "Spinning…" : "SPIN"}
           </button>
@@ -225,7 +246,7 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
                 key={letter}
                 className="letter-btn"
                 onClick={() => guessLetter(letter)}
-                disabled={spinning}
+                disabled={spinning || needsSpin}
               >
                 {letter}
               </button>
@@ -238,8 +259,12 @@ export function WheelOfFortune({ onBack }: { onBack: () => void }) {
         <div className="wof-modal">
           <div className="wof-modal-content">
             <div className="wof-modal-emoji">🎉</div>
-            <h2>You Won!</h2>
-            <p>Final Score: {score}</p>
+            <h2>{winner} Won!</h2>
+            <div className="wof-modal-scores">
+              {PLAYERS.map((name, i) => (
+                <p key={i}>{name}: ${scores[i]}</p>
+              ))}
+            </div>
             <button className="wof-modal-btn" onClick={reset}>
               Play Again
             </button>
