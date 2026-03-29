@@ -9,7 +9,7 @@ const GAMES = [
   { id: "drawing", label: "Drawing", icon: "🎨", color: "#be185d" },
   { id: "buzzer", label: "Buzzer", icon: "🔔", color: "#15803d" },
   { id: "snake", label: "Snake", icon: "🐍", color: "#b91c1c" },
-  { id: "wheel", label: "Fortune Wheel", icon: "🎡", color: "#d97706" },
+  { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#d97706" },
 ];
 
 function App() {
@@ -20,7 +20,10 @@ function App() {
     return (
       <WheelOfFortune
         playerCount={wheelPlayers}
-        onBack={() => { setActiveGame(null); setWheelPlayers(null); }}
+        onBack={() => {
+          setActiveGame(null);
+          setWheelPlayers(null);
+        }}
       />
     );
   }
@@ -30,11 +33,15 @@ function App() {
       <div className="hub-root">
         <div className="game-placeholder">
           <span className="game-placeholder-icon">🎡</span>
-          <h1>Fortune Wheel</h1>
-          <p>How many players?</p>
+          <h1>La Roue de la Fortune</h1>
+          <p>Combien de joueurs ?</p>
           <div className="player-count-picker">
             {[2, 3, 4].map((n) => (
-              <button key={n} className="player-count-btn" onClick={() => setWheelPlayers(n)}>
+              <button
+                key={n}
+                className="player-count-btn"
+                onClick={() => setWheelPlayers(n)}
+              >
                 {n}
               </button>
             ))}
