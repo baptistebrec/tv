@@ -356,6 +356,90 @@
   margin: 4px 0;
 }
 
+.wof-solve-btn {
+  margin-top: 4px;
+  padding: 10px;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 2px dashed #475569;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #f1f5f9;
+    color: #f1f5f9;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.wof-guess-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.wof-guess-input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid #6366f1;
+  background: #1e293b;
+  color: #f1f5f9;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  text-transform: uppercase;
+
+  &:focus {
+    border-color: #a5b4fc;
+  }
+}
+
+.wof-guess-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.wof-guess-confirm {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: none;
+  background: #6366f1;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.wof-guess-cancel {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 2px solid #475569;
+  background: transparent;
+  color: #94a3b8;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #94a3b8;
+    color: #f1f5f9;
+  }
+}
+
 .wof-modal-btn {
   padding: 12px 36px;
   font-size: 1rem;

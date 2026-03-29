@@ -20,7 +20,7 @@ const WHEEL_FINAL: WheelSegment[] = [
 const PHRASES = [
   // "CODING IS FUN",
   "AA BB",
-  "a bc",
+  "A BC",
   // "HELLO WORLD",
   // "WHEEL OF FORTUNE",
   // "JAVASCRIPT ROCKS",
@@ -102,6 +102,8 @@ export function WheelOfFortune({
   const [rotation, setRotation] = useState(0);
   const [betweenRounds, setBetweenRounds] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [isGuessing, setIsGuessing] = useState(false);
+  const [guessInput, setGuessInput] = useState("");
 
   const isFinalRound = round === TOTAL_ROUNDS;
   const wheelValues = isFinalRound ? WHEEL_FINAL : WHEEL_NORMAL;
@@ -201,6 +203,8 @@ export function WheelOfFortune({
     setBetweenRounds(false);
     setRotation(0);
     accumulated.current = 0;
+    setIsGuessing(false);
+    setGuessInput("");
   }
 
   function reset() {
@@ -216,6 +220,26 @@ export function WheelOfFortune({
     accumulated.current = 0;
     setBetweenRounds(false);
     setGameOver(false);
+    setIsGuessing(false);
+    setGuessInput("");
+  }
+
+  function guessPhrase() {
+    if (guessInput.trim().toUpperCase() === phrase.trim().toUpperCase()) {
+      const newCagnotte = [...cagnotte];
+      newCagnotte[currentPlayer] += roundScores[currentPlayer];
+      setCagnotte(newCagnotte);
+      setIsGuessing(false);
+      setGuessInput("");
+      if (round === TOTAL_ROUNDS) setGameOver(true);
+      else setBetweenRounds(true);
+    } else {
+      setIsGuessing(false);
+      setGuessInput("");
+      setCurrentValue(null);
+      setNeedsSpin(true);
+      setCurrentPlayer((p) => (p + 1) % PLAYERS.length);
+    }
   }
 
   const VOWELS = new Set(["A", "E", "I", "O", "U"]);
@@ -256,8 +280,12 @@ export function WheelOfFortune({
   }
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const unguessedConsonants = alphabet.filter((l) => !guessed.has(l) && !VOWELS.has(l));
-  const unguessedVowels = alphabet.filter((l) => !guessed.has(l) && VOWELS.has(l));
+  const unguessedConsonants = alphabet.filter(
+    (l) => !guessed.has(l) && !VOWELS.has(l),
+  );
+  const unguessedVowels = alphabet.filter(
+    (l) => !guessed.has(l) && VOWELS.has(l),
+  );
   const canBuyVowel = roundScores[currentPlayer] >= VOWEL_COST;
   const winner = gameOver
     ? PLAYERS[cagnotte.indexOf(Math.max(...cagnotte))]
@@ -411,6 +439,41 @@ export function WheelOfFortune({
               ))}
             </div>
           </div>
+
+          {isGuessing ? (
+            <div className="wof-guess-form">
+              <input
+                className="wof-guess-input"
+                autoFocus
+                value={guessInput}
+                onChange={(e) => setGuessInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && guessPhrase()}
+                placeholder="Type the phrase…"
+              />
+              <div className="wof-guess-actions">
+                <button className="wof-guess-confirm" onClick={guessPhrase}>
+                  Confirm
+                </button>
+                <button
+                  className="wof-guess-cancel"
+                  onClick={() => {
+                    setIsGuessing(false);
+                    setGuessInput("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              className="wof-solve-btn"
+              onClick={() => setIsGuessing(true)}
+              disabled={spinning || betweenRounds || gameOver}
+            >
+              Guess the phrase
+            </button>
+          )}
         </div>
       </div>
 
