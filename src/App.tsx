@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import { FortuneWheel } from "./games/FortuneWheel";
+import { WheelOfFortune } from "./games/WheelOfFortune";
 
 const GAMES = [
   { id: "quiz", label: "Quiz", icon: "🧠", color: "#7c3aed" },
@@ -16,7 +16,7 @@ function App() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
 
   if (activeGame === "wheel") {
-    return <FortuneWheel onBack={() => setActiveGame(null)} />;
+    return <WheelOfFortune onBack={() => setActiveGame(null)} />;
   }
 
   if (activeGame) {
