@@ -356,6 +356,100 @@
   margin: 4px 0;
 }
 
+/* Reveal phase */
+.wof-reveal-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+  width: 100%;
+  max-width: 500px;
+}
+
+.wof-reveal-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 0;
+}
+
+.wof-reveal-subtitle {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: -16px 0 0;
+}
+
+.wof-reveal-word {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.wof-reveal-feedback {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ef4444;
+  animation: wof-pop 0.3s ease;
+}
+
+.wof-reveal-buzzers {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.wof-buzzer-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 32px;
+  border-radius: 14px;
+  border: 3px solid #6366f1;
+  background: #1e1b4b;
+  color: #f1f5f9;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) {
+    background: #312e81;
+    border-color: #a5b4fc;
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.wof-buzzer-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.wof-reveal-guess {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.wof-reveal-buzzer-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-align: center;
+}
+
 .wof-solve-btn {
   margin-top: 4px;
   padding: 10px;
