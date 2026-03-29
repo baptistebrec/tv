@@ -218,8 +218,47 @@ export function WheelOfFortune({
     setGameOver(false);
   }
 
+  const VOWELS = new Set(["A", "E", "I", "O", "U"]);
+  const VOWEL_COST = 200;
+
+  function buyVowel(letter: string) {
+    if (
+      guessed.has(letter) ||
+      spinning ||
+      betweenRounds ||
+      gameOver ||
+      roundScores[currentPlayer] < VOWEL_COST
+    )
+      return;
+
+    const newRoundScores = [...roundScores];
+    newRoundScores[currentPlayer] -= VOWEL_COST;
+
+    const newGuessed = new Set(guessed);
+    newGuessed.add(letter);
+    setGuessed(newGuessed);
+    setCurrentValue(null);
+    setNeedsSpin(true);
+
+    if (phrase.includes(letter)) {
+      setRoundScores(newRoundScores);
+      if (phrase.split("").every((c) => c === " " || newGuessed.has(c))) {
+        const newCagnotte = [...cagnotte];
+        newCagnotte[currentPlayer] += newRoundScores[currentPlayer];
+        setCagnotte(newCagnotte);
+        if (round === TOTAL_ROUNDS) setGameOver(true);
+        else setBetweenRounds(true);
+      }
+    } else {
+      setRoundScores(newRoundScores);
+      setCurrentPlayer((p) => (p + 1) % PLAYERS.length);
+    }
+  }
+
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-  const unguessed = alphabet.filter((l) => !guessed.has(l));
+  const unguessedConsonants = alphabet.filter((l) => !guessed.has(l) && !VOWELS.has(l));
+  const unguessedVowels = alphabet.filter((l) => !guessed.has(l) && VOWELS.has(l));
+  const canBuyVowel = roundScores[currentPlayer] >= VOWEL_COST;
   const winner = gameOver
     ? PLAYERS[cagnotte.indexOf(Math.max(...cagnotte))]
     : null;
@@ -345,7 +384,7 @@ export function WheelOfFortune({
           )}
 
           <div className="wof-letters">
-            {unguessed.map((letter) => (
+            {unguessedConsonants.map((letter) => (
               <button
                 key={letter}
                 className="letter-btn"
@@ -355,6 +394,22 @@ export function WheelOfFortune({
                 {letter}
               </button>
             ))}
+          </div>
+
+          <div className="wof-vowels-section">
+            <div className="wof-vowels-label">Buy a vowel — $200</div>
+            <div className="wof-letters">
+              {unguessedVowels.map((letter) => (
+                <button
+                  key={letter}
+                  className="letter-btn vowel-btn"
+                  onClick={() => buyVowel(letter)}
+                  disabled={spinning || !canBuyVowel}
+                >
+                  {letter}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
