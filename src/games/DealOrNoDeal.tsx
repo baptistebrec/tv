@@ -1,32 +1,48 @@
 import { useState } from "react";
 import "./DealOrNoDeal.css";
 
-const AMOUNTS = [
-  0.01, 1, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500, 750,
-  1000, 5000, 10000, 25000, 50000, 75000, 100000,
-  200000, 300000, 400000, 500000, 750000, 1000000,
+const AMOUNTS: { text: string; value: number }[] = [
+  { text: "centime", value: 0.01 },
+  { text: "un", value: 1 },
+  { text: "cinq", value: 5 },
+  { text: "Dix", value: 10 },
+  { text: "un", value: 25 },
+  { text: "Objet", value: 50 },
+  { text: "ss", value: 75 },
+  { text: "sefzef", value: 100 },
+  { text: "zffzfz", value: 200 },
+  { text: "zfkzf", value: 300 },
+  { text: "eezeze", value: 400 },
+  { text: "ezfonzf", value: 500 },
+  { text: "zefizfif", value: 750 },
+  { text: "Du Caca", value: 1000 },
+  { text: "Miam", value: 5000 },
+  { text: "Chien", value: 10000 },
+  { text: "erforfrfnrno", value: 25000 },
+  { text: "cnvnvnvn", value: 50000 },
+  { text: "sffjnjfnozrn", value: 75000 },
+  { text: "mmm", value: 100000 },
+  { text: "!!!!", value: 200000 },
+  { text: " €", value: 300000 },
+  { text: " gg400 000 €", value: 400000 },
+  { text: "gggg500 f000 €", value: 500000 },
+  { text: "ggg750 000 €", value: 750000 },
+  { text: "gggggggg1 0g00 000 €", value: 1000000 },
 ];
 
 // Cases to open per round before banker makes an offer
 const ROUND_CASES = [6, 5, 4, 3, 2, 1, 1, 1, 1, 1];
 
-function fmt(n: number): string {
-  if (n < 1) return "$0.01";
-  if (n >= 1_000_000) return "$1,000,000";
-  if (n >= 1000) return `$${n.toLocaleString()}`;
-  return `$${n}`;
-}
-
-function fmtShort(n: number): string {
-  if (n < 1) return "¢1";
-  if (n >= 1_000_000) return "$1M";
-  if (n >= 1000) return `$${n / 1000}K`;
-  return `$${n}`;
+function closestText(n: number): string {
+  return AMOUNTS.reduce((best, amt) =>
+    Math.abs(amt.value - n) < Math.abs(best.value - n) ? amt : best
+  ).text;
 }
 
 interface Case {
   id: number;
-  amount: number;
+  value: number;
+  text: string;
   opened: boolean;
 }
 
@@ -36,21 +52,31 @@ interface Props {
 
 function initCases(): Case[] {
   const shuffled = [...AMOUNTS].sort(() => Math.random() - 0.5);
-  return shuffled.map((amount, i) => ({ id: i + 1, amount, opened: false }));
+  return shuffled.map(({ text, value }, i) => ({
+    id: i + 1,
+    value,
+    text,
+    opened: false,
+  }));
 }
 
 export default function DealOrNoDeal({ onBack }: Props) {
   const [cases, setCases] = useState<Case[]>(initCases);
   const [playerCaseId, setPlayerCaseId] = useState<number | null>(null);
-  const [phase, setPhase] = useState<"picking" | "opening" | "revealing" | "offer" | "final_swap" | "game_over">("picking");
-  const [nextPhase, setNextPhase] = useState<"offer" | "final_swap" | null>(null);
+  const [phase, setPhase] = useState<
+    "picking" | "opening" | "revealing" | "offer" | "final_swap" | "game_over"
+  >("picking");
+  const [nextPhase, setNextPhase] = useState<"offer" | "final_swap" | null>(
+    null,
+  );
   const [round, setRound] = useState(1);
   const [openedThisRound, setOpenedThisRound] = useState(0);
   const [bankerOffer, setBankerOffer] = useState(0);
   const [dealTaken, setDealTaken] = useState(false);
-  const [finalAmount, setFinalAmount] = useState(0);
+  const [finalText, setFinalText] = useState("");
   const [endNote, setEndNote] = useState("");
-  const [lastOpenedAmount, setLastOpenedAmount] = useState<number | null>(null);
+  const [lastOpenedValue, setLastOpenedValue] = useState<number | null>(null);
+  const [lastOpenedText, setLastOpenedText] = useState<string | null>(null);
   const [lastOpenedId, setLastOpenedId] = useState<number | null>(null);
 
   const casesToOpen = ROUND_CASES[Math.min(round - 1, ROUND_CASES.length - 1)];
@@ -66,12 +92,17 @@ export default function DealOrNoDeal({ onBack }: Props) {
     const c = cases.find((c) => c.id === id);
     if (!c || c.opened || c.id === playerCaseId) return;
 
-    const newCases = cases.map((c) => (c.id === id ? { ...c, opened: true } : c));
+    const newCases = cases.map((c) =>
+      c.id === id ? { ...c, opened: true } : c,
+    );
     setCases(newCases);
-    setLastOpenedAmount(c.amount);
+    setLastOpenedValue(c.value);
+    setLastOpenedText(c.text);
     setLastOpenedId(c.id);
 
-    const remaining = newCases.filter((c) => !c.opened && c.id !== playerCaseId);
+    const remaining = newCases.filter(
+      (c) => !c.opened && c.id !== playerCaseId,
+    );
 
     if (remaining.length === 1) {
       setNextPhase("final_swap");
@@ -81,8 +112,8 @@ export default function DealOrNoDeal({ onBack }: Props) {
 
     const newOpened = openedThisRound + 1;
     if (newOpened >= casesToOpen) {
-      const remAmounts = remaining.map((c) => c.amount);
-      const expected = remAmounts.reduce((a, b) => a + b, 0) / remAmounts.length;
+      const remValues = remaining.map((c) => c.value);
+      const expected = remValues.reduce((a, b) => a + b, 0) / remValues.length;
       const pct = Math.min(0.1 + round * 0.08, 0.95);
       setBankerOffer(Math.round(expected * pct));
       setOpenedThisRound(0);
@@ -100,9 +131,9 @@ export default function DealOrNoDeal({ onBack }: Props) {
 
   function handleDeal() {
     setDealTaken(true);
-    setFinalAmount(bankerOffer);
-    const playerAmt = cases.find((c) => c.id === playerCaseId)!.amount;
-    setEndNote(`Your case had ${fmt(playerAmt)}`);
+    setFinalText(closestText(bankerOffer));
+    const playerCase = cases.find((c) => c.id === playerCaseId)!;
+    setEndNote(`Your case had: ${playerCase.text}`);
     setPhase("game_over");
   }
 
@@ -113,17 +144,19 @@ export default function DealOrNoDeal({ onBack }: Props) {
   }
 
   function handleKeep() {
-    const amt = cases.find((c) => c.id === playerCaseId)!.amount;
-    setFinalAmount(amt);
+    const playerCase = cases.find((c) => c.id === playerCaseId)!;
+    setFinalText(playerCase.text);
     setEndNote("You kept your original case!");
     setPhase("game_over");
   }
 
   function handleSwap() {
     const other = cases.find((c) => !c.opened && c.id !== playerCaseId)!;
-    setFinalAmount(other.amount);
-    const playerAmt = cases.find((c) => c.id === playerCaseId)!.amount;
-    setEndNote(`You swapped to case #${other.id}. Yours had ${fmt(playerAmt)}.`);
+    const playerCase = cases.find((c) => c.id === playerCaseId)!;
+    setFinalText(other.text);
+    setEndNote(
+      `You swapped to case #${other.id}. Yours had: ${playerCase.text}`,
+    );
     setPhase("game_over");
   }
 
@@ -135,9 +168,10 @@ export default function DealOrNoDeal({ onBack }: Props) {
     setOpenedThisRound(0);
     setBankerOffer(0);
     setDealTaken(false);
-    setFinalAmount(0);
+    setFinalText("");
     setEndNote("");
-    setLastOpenedAmount(null);
+    setLastOpenedValue(null);
+    setLastOpenedText(null);
     setLastOpenedId(null);
     setNextPhase(null);
   }
@@ -149,7 +183,9 @@ export default function DealOrNoDeal({ onBack }: Props) {
   return (
     <div className="dond-root">
       <div className="dond-header">
-        <button className="dond-back" onClick={onBack}>← Back</button>
+        <button className="dond-back" onClick={onBack}>
+          ← Back
+        </button>
         <h1 className="dond-title">Deal or No Deal</h1>
         <div className="dond-status">
           {phase === "picking" && <span>Pick your case!</span>}
@@ -165,11 +201,14 @@ export default function DealOrNoDeal({ onBack }: Props) {
         {/* Left money board */}
         <div className="dond-board">
           {lowAmounts.map((amt) => {
-            const gone = cases.some((c) => c.opened && c.amount === amt);
-            const justOpened = lastOpenedAmount === amt;
+            const gone = cases.some((c) => c.opened && c.value === amt.value);
+            const justOpened = lastOpenedValue === amt.value;
             return (
-              <div key={amt} className={`dond-amt low ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}>
-                {fmt(amt)}
+              <div
+                key={amt.value}
+                className={`dond-amt low ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}
+              >
+                {amt.text}
               </div>
             );
           })}
@@ -200,7 +239,11 @@ export default function DealOrNoDeal({ onBack }: Props) {
                   disabled={!clickable}
                 >
                   {c.opened ? (
-                    <span className={`dond-case-val ${c.amount >= 100000 ? "bad" : c.amount >= 10000 ? "mid" : "good"}`}>{fmtShort(c.amount)}</span>
+                    <span
+                      className={`dond-case-val ${c.value >= 100000 ? "bad" : c.value >= 10000 ? "mid" : "good"}`}
+                    >
+                      {c.text}
+                    </span>
                   ) : (
                     <span>#{c.id}</span>
                   )}
@@ -213,11 +256,14 @@ export default function DealOrNoDeal({ onBack }: Props) {
         {/* Right money board */}
         <div className="dond-board">
           {highAmounts.map((amt) => {
-            const gone = cases.some((c) => c.opened && c.amount === amt);
-            const justOpened = lastOpenedAmount === amt;
+            const gone = cases.some((c) => c.opened && c.value === amt.value);
+            const justOpened = lastOpenedValue === amt.value;
             return (
-              <div key={amt} className={`dond-amt high ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}>
-                {fmt(amt)}
+              <div
+                key={amt.value}
+                className={`dond-amt high ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}
+              >
+                {amt.text}
               </div>
             );
           })}
@@ -225,39 +271,62 @@ export default function DealOrNoDeal({ onBack }: Props) {
       </div>
 
       {/* Value Reveal */}
-      {phase === "revealing" && lastOpenedAmount !== null && (
-        <div className="dond-overlay">
-          <div className="dond-modal reveal-modal">
-            <p className="dond-sublabel">Case contained</p>
-            <div className={`dond-big-amt reveal-amt ${lastOpenedAmount >= 100000 ? "bad" : lastOpenedAmount >= 10000 ? "mid" : "good"}`}>
-              {fmt(lastOpenedAmount)}
+      {phase === "revealing" &&
+        lastOpenedText !== null &&
+        lastOpenedValue !== null && (
+          <div className="dond-overlay">
+            <div className="dond-modal reveal-modal">
+              <p className="dond-sublabel">Case contained</p>
+              <div
+                className={`dond-big-amt reveal-amt ${lastOpenedValue >= 100000 ? "bad" : lastOpenedValue >= 10000 ? "mid" : "good"}`}
+              >
+                {lastOpenedText}
+              </div>
+              <button
+                className="dond-btn continue"
+                onClick={handleRevealContinue}
+              >
+                {nextPhase === "offer"
+                  ? "Call the Banker →"
+                  : "Final Decision →"}
+              </button>
             </div>
-            <button className="dond-btn continue" onClick={handleRevealContinue}>
-              {nextPhase === "offer" ? "Call the Banker →" : "Final Decision →"}
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
       {/* Banker Offer */}
       {phase === "offer" && (
         <div className="dond-overlay">
           <div className="dond-modal">
-            {lastOpenedId !== null && lastOpenedAmount !== null && (
-              <p className="dond-last-opened">
-                Case <strong>#{lastOpenedId}</strong> contained{" "}
-                <strong className={lastOpenedAmount >= 100000 ? "bad" : lastOpenedAmount >= 10000 ? "mid" : "good"}>
-                  {fmt(lastOpenedAmount)}
-                </strong>
-              </p>
-            )}
+            {lastOpenedId !== null &&
+              lastOpenedText !== null &&
+              lastOpenedValue !== null && (
+                <p className="dond-last-opened">
+                  Case <strong>#{lastOpenedId}</strong> contained{" "}
+                  <strong
+                    className={
+                      lastOpenedValue >= 100000
+                        ? "bad"
+                        : lastOpenedValue >= 10000
+                          ? "mid"
+                          : "good"
+                    }
+                  >
+                    {lastOpenedText}
+                  </strong>
+                </p>
+              )}
             <div className="dond-phone">📞</div>
             <p className="dond-caller">The Banker is calling…</p>
-            <div className="dond-big-amt">{fmt(bankerOffer)}</div>
+            <div className="dond-big-amt">{closestText(bankerOffer)}</div>
             <p className="dond-sublabel">THE BANKER'S OFFER</p>
             <div className="dond-actions">
-              <button className="dond-btn deal" onClick={handleDeal}>DEAL!</button>
-              <button className="dond-btn nodeal" onClick={handleNoDeal}>NO DEAL!</button>
+              <button className="dond-btn deal" onClick={handleDeal}>
+                DEAL!
+              </button>
+              <button className="dond-btn nodeal" onClick={handleNoDeal}>
+                NO DEAL!
+              </button>
             </div>
           </div>
         </div>
@@ -273,8 +342,12 @@ export default function DealOrNoDeal({ onBack }: Props) {
               <strong>#{lastCase.id}</strong>?
             </p>
             <div className="dond-actions">
-              <button className="dond-btn deal" onClick={handleSwap}>SWAP!</button>
-              <button className="dond-btn nodeal" onClick={handleKeep}>KEEP!</button>
+              <button className="dond-btn deal" onClick={handleSwap}>
+                SWAP!
+              </button>
+              <button className="dond-btn nodeal" onClick={handleKeep}>
+                KEEP!
+              </button>
             </div>
           </div>
         </div>
@@ -285,7 +358,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
         <div className="dond-overlay">
           <div className="dond-modal">
             <h2>{dealTaken ? "Deal Taken!" : "Game Over!"}</h2>
-            <div className="dond-big-amt won">{fmt(finalAmount)}</div>
+            <div className="dond-big-amt won">{finalText}</div>
             <p className="dond-sublabel">YOU WON</p>
             {endNote && <p className="dond-endnote">{endNote}</p>}
             <button className="dond-btn restart" onClick={handleRestart}>
