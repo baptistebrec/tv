@@ -127,8 +127,8 @@
 
 /* Cases */
 .dond-case {
-  width: 56px;
-  height: 46px;
+  width: 76px;
+  height: 62px;
   border-radius: 6px;
   border: 2px solid #4b5563;
   background: linear-gradient(145deg, #3d2b1a, #5a3d24);
@@ -146,9 +146,9 @@
   border-color: #ffd700;
   background: linear-gradient(145deg, #7c4a1a, #a05a20);
   box-shadow: 0 0 16px rgba(255, 215, 0, 0.45);
-  width: 70px;
-  height: 56px;
-  font-size: 1rem;
+  width: 92px;
+  height: 74px;
+  font-size: 1.1rem;
 }
 
 .dond-case.clickable {
@@ -173,10 +173,14 @@
 }
 
 .dond-case-val {
-  font-size: 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 800;
   color: #64748b;
-  font-weight: 700;
 }
+
+.dond-case-val.good { color: #4ade80; }
+.dond-case-val.mid  { color: #fb923c; }
+.dond-case-val.bad  { color: #f87171; }
 
 .dond-grid {
   display: grid;

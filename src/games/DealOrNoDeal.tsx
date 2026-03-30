@@ -200,7 +200,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
                   disabled={!clickable}
                 >
                   {c.opened ? (
-                    <span className="dond-case-val">{fmtShort(c.amount)}</span>
+                    <span className={`dond-case-val ${c.amount >= 100000 ? "bad" : c.amount >= 10000 ? "mid" : "good"}`}>{fmtShort(c.amount)}</span>
                   ) : (
                     <span>#{c.id}</span>
                   )}
