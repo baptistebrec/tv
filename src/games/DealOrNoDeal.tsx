@@ -22,11 +22,11 @@ const AMOUNTS: { text: string; value: number }[] = [
   { text: "cnvnvnvn", value: 50000 },
   { text: "sffjnjfnozrn", value: 75000 },
   { text: "mmm", value: 100000 },
-  { text: "!!!!", value: 200000 },
+  { text: "Prends 3", value: 200000 },
   { text: " €", value: 300000 },
   { text: " gg400 000 €", value: 400000 },
   { text: "gggg500 f000 €", value: 500000 },
-  { text: "ggg750 000 €", value: 750000 },
+  { text: "Fais un massage à Clément", value: 750000 },
   { text: "gggggggg1 0g00 000 €", value: 1000000 },
 ];
 
@@ -35,7 +35,7 @@ const ROUND_CASES = [6, 5, 4, 3, 2, 1, 1, 1, 1, 1];
 
 function closestText(n: number): string {
   return AMOUNTS.reduce((best, amt) =>
-    Math.abs(amt.value - n) < Math.abs(best.value - n) ? amt : best
+    Math.abs(amt.value - n) < Math.abs(best.value - n) ? amt : best,
   ).text;
 }
 
