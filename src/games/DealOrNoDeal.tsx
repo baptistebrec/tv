@@ -49,6 +49,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
   const [dealTaken, setDealTaken] = useState(false);
   const [finalAmount, setFinalAmount] = useState(0);
   const [endNote, setEndNote] = useState("");
+  const [lastOpenedAmount, setLastOpenedAmount] = useState<number | null>(null);
 
   const casesToOpen = ROUND_CASES[Math.min(round - 1, ROUND_CASES.length - 1)];
   const leftToOpen = casesToOpen - openedThisRound;
@@ -65,6 +66,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
 
     const newCases = cases.map((c) => (c.id === id ? { ...c, opened: true } : c));
     setCases(newCases);
+    setLastOpenedAmount(c.amount);
 
     const remaining = newCases.filter((c) => !c.opened && c.id !== playerCaseId);
 
@@ -125,6 +127,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
     setDealTaken(false);
     setFinalAmount(0);
     setEndNote("");
+    setLastOpenedAmount(null);
   }
 
   const lastCase = cases.find((c) => !c.opened && c.id !== playerCaseId);
@@ -151,8 +154,9 @@ export default function DealOrNoDeal({ onBack }: Props) {
         <div className="dond-board">
           {lowAmounts.map((amt) => {
             const gone = cases.some((c) => c.opened && c.amount === amt);
+            const justOpened = lastOpenedAmount === amt;
             return (
-              <div key={amt} className={`dond-amt low ${gone ? "gone" : ""}`}>
+              <div key={amt} className={`dond-amt low ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}>
                 {fmt(amt)}
               </div>
             );
@@ -198,8 +202,9 @@ export default function DealOrNoDeal({ onBack }: Props) {
         <div className="dond-board">
           {highAmounts.map((amt) => {
             const gone = cases.some((c) => c.opened && c.amount === amt);
+            const justOpened = lastOpenedAmount === amt;
             return (
-              <div key={amt} className={`dond-amt high ${gone ? "gone" : ""}`}>
+              <div key={amt} className={`dond-amt high ${gone ? "gone" : ""} ${justOpened ? "just-opened" : ""}`}>
                 {fmt(amt)}
               </div>
             );

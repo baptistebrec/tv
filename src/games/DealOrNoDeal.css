@@ -91,6 +91,16 @@
   text-decoration: line-through;
 }
 
+.dond-amt.just-opened {
+  animation: dond-flash 1.8s ease-out forwards;
+}
+
+@keyframes dond-flash {
+  0%   { transform: scale(1.18); box-shadow: 0 0 18px 4px #fff8; background: #fff; color: #000; border-color: #fff; }
+  30%  { transform: scale(1.08); }
+  100% { transform: scale(1); box-shadow: none; }
+}
+
 /* Center column */
 .dond-center {
   flex: 1;
