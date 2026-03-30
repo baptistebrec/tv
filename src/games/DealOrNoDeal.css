@@ -1,0 +1,312 @@
+.dond-root {
+  min-height: 100vh;
+  background: #080818;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  font-family: system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header */
+.dond-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.dond-back {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.dond-back:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dond-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.dond-status {
+  margin-left: auto;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* Layout */
+.dond-layout {
+  display: flex;
+  gap: 0.75rem;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* Money boards */
+.dond-board {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 105px;
+}
+
+.dond-amt {
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  transition: opacity 0.3s, background 0.3s;
+}
+
+.dond-amt.low {
+  background: #1e3a5f;
+  border: 1px solid #2563eb;
+  color: #93c5fd;
+}
+
+.dond-amt.high {
+  background: #3b1a1a;
+  border: 1px solid #dc2626;
+  color: #fca5a5;
+}
+
+.dond-amt.gone {
+  opacity: 0.18;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  text-decoration: line-through;
+}
+
+/* Center column */
+.dond-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dond-my-case {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.dond-my-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #ffd700;
+  font-weight: 700;
+}
+
+/* Cases */
+.dond-case {
+  width: 56px;
+  height: 46px;
+  border-radius: 6px;
+  border: 2px solid #4b5563;
+  background: linear-gradient(145deg, #3d2b1a, #5a3d24);
+  color: #ffd700;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s, border-color 0.12s, background 0.12s, box-shadow 0.12s;
+}
+
+.dond-case.selected {
+  border-color: #ffd700;
+  background: linear-gradient(145deg, #7c4a1a, #a05a20);
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.45);
+  width: 70px;
+  height: 56px;
+  font-size: 1rem;
+}
+
+.dond-case.clickable {
+  cursor: pointer;
+}
+
+.dond-case.clickable:hover {
+  transform: scale(1.12);
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+
+.dond-case.clickable:active {
+  transform: scale(0.97);
+}
+
+.dond-case.opened {
+  background: #0f172a;
+  border-color: #1e293b;
+  cursor: default;
+  color: #64748b;
+}
+
+.dond-case-val {
+  font-size: 0.6rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.dond-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+}
+
+/* Overlay & Modal */
+.dond-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(5px);
+}
+
+.dond-modal {
+  background: #0d1a2e;
+  border: 2px solid #ffd700;
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 0 50px rgba(255, 215, 0, 0.25);
+  animation: dond-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes dond-pop {
+  from {
+    transform: scale(0.65);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dond-modal h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.4rem;
+  color: #ffd700;
+}
+
+.dond-phone {
+  font-size: 2.8rem;
+  animation: dond-ring 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes dond-ring {
+  from { transform: rotate(-18deg); }
+  to { transform: rotate(18deg); }
+}
+
+.dond-caller {
+  color: #94a3b8;
+  margin: 0.4rem 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.dond-big-amt {
+  font-size: 2.6rem;
+  font-weight: 900;
+  color: #ffd700;
+  text-shadow: 0 0 24px rgba(255, 215, 0, 0.5);
+  margin: 0.25rem 0;
+  line-height: 1;
+}
+
+.dond-big-amt.won {
+  font-size: 3rem;
+}
+
+.dond-sublabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #475569;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.dond-endnote {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0.5rem 0 1rem;
+}
+
+/* Buttons */
+.dond-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.dond-btn {
+  padding: 0.7rem 1.8rem;
+  border-radius: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: transform 0.1s, opacity 0.1s;
+}
+
+.dond-btn:hover {
+  transform: scale(1.06);
+}
+
+.dond-btn:active {
+  transform: scale(0.96);
+}
+
+.dond-btn.deal {
+  background: #16a34a;
+  color: #fff;
+}
+
+.dond-btn.nodeal {
+  background: #dc2626;
+  color: #fff;
+}
+
+.dond-btn.restart {
+  background: #2563eb;
+  color: #fff;
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+}
+
+.dond-btn.back {
+  background: transparent;
+  border: 1px solid #334155;
+  color: #64748b;
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+}

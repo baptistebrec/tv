@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import { WheelOfFortune } from "./games/WheelOfFortune";
+import DealOrNoDeal from "./games/DealOrNoDeal";
 
 const GAMES = [
   { id: "quiz", label: "Quiz", icon: "🧠", color: "#7c3aed" },
@@ -10,11 +11,16 @@ const GAMES = [
   { id: "buzzer", label: "Buzzer", icon: "🔔", color: "#15803d" },
   { id: "snake", label: "Snake", icon: "🐍", color: "#b91c1c" },
   { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#d97706" },
+  { id: "dond", label: "Deal or No Deal", icon: "💼", color: "#b45309" },
 ];
 
 function App() {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [wheelPlayers, setWheelPlayers] = useState<number | null>(null);
+
+  if (activeGame === "dond") {
+    return <DealOrNoDeal onBack={() => setActiveGame(null)} />;
+  }
 
   if (activeGame === "wheel" && wheelPlayers) {
     return (
