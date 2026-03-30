@@ -3,13 +3,13 @@ import "./FortuneWheel.css";
 
 const SEGMENTS = [
   { label: "Jackpot! 🎉", color: "#f59e0b" },
-  { label: "Try Again", color: "#6366f1" },
-  { label: "Double Points", color: "#10b981" },
-  { label: "Bonus Round 🎯", color: "#ef4444" },
-  { label: "Lose a Turn", color: "#8b5cf6" },
-  { label: "Wild Card 🃏", color: "#0891b2" },
-  { label: "Free Spin", color: "#f43f5e" },
-  { label: "Big Prize 🏆", color: "#84cc16" },
+  { label: "Rejouer", color: "#6366f1" },
+  { label: "Points x2", color: "#10b981" },
+  { label: "Bonus 🎯", color: "#ef4444" },
+  { label: "Tour perdu", color: "#8b5cf6" },
+  { label: "Joker 🃏", color: "#0891b2" },
+  { label: "Tour gratuit", color: "#f43f5e" },
+  { label: "Gros lot 🏆", color: "#84cc16" },
 ];
 
 const SIZE = 400;
@@ -74,10 +74,10 @@ export function FortuneWheel({ onBack }: { onBack: () => void }) {
   return (
     <div className="fw-root">
       <button className="fw-back" onClick={onBack}>
-        ← Back to Hub
+        ← Retour
       </button>
 
-      <h1 className="fw-title">🎡 Fortune Wheel</h1>
+      <h1 className="fw-title">🎡 Roue de la Fortune</h1>
 
       <div className="fw-wrap">
         <div className="fw-pointer" />
@@ -126,7 +126,7 @@ export function FortuneWheel({ onBack }: { onBack: () => void }) {
       </div>
 
       <button className="fw-spin-btn" onClick={spin} disabled={spinning}>
-        {spinning ? "Spinning…" : "SPIN"}
+        {spinning ? "En cours…" : "TOURNER"}
       </button>
 
       {result && (

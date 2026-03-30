@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "./WheelOfFortune.css";
+import { MYSTERY_WORDS, PHRASES } from "../data/dictionary";
 
 type WheelSegment = number | "BANKRUPT";
 
@@ -17,29 +18,6 @@ const WHEEL_FINAL: WheelSegment[] = [
   500,
 ];
 
-const PHRASES: { text: string; theme: string }[] = [
-  { text: "CODING IS FUN", theme: "Activity" },
-  { text: "HELLO WORLD", theme: "Famous phrase" },
-  { text: "WHEEL OF FORTUNE", theme: "TV Show" },
-  { text: "JAVASCRIPT ROCKS", theme: "Technology" },
-  { text: "SPIN THE WHEEL", theme: "Action" },
-  { text: "THE EIFFEL TOWER", theme: "Landmark" },
-  { text: "PIZZA MARGHERITA", theme: "Food" },
-  { text: "SOLAR SYSTEM", theme: "Science" },
-];
-
-const MYSTERY_WORDS: { text: string; theme: string }[] = [
-  { text: "FORTUNE", theme: "Concept" },
-  { text: "WHEEL", theme: "Object" },
-  { text: "VICTORY", theme: "Feeling" },
-  { text: "CHAMPION", theme: "Person" },
-  { text: "PUZZLE", theme: "Game" },
-  { text: "MYSTERY", theme: "Concept" },
-  { text: "JACKPOT", theme: "Reward" },
-  { text: "SPINNER", theme: "Object" },
-  { text: "LETTERS", theme: "Language" },
-  { text: "WINNER", theme: "Person" },
-];
 
 const TOTAL_ROUNDS = 4;
 const VOWEL_COST = 200;
