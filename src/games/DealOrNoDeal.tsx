@@ -133,7 +133,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
     setDealTaken(true);
     setFinalText(closestText(bankerOffer));
     const playerCase = cases.find((c) => c.id === playerCaseId)!;
-    setEndNote(`Your case had: ${playerCase.text}`);
+    setEndNote(`Votre valise contenait : ${playerCase.text}`);
     setPhase("game_over");
   }
 
@@ -146,7 +146,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
   function handleKeep() {
     const playerCase = cases.find((c) => c.id === playerCaseId)!;
     setFinalText(playerCase.text);
-    setEndNote("You kept your original case!");
+    setEndNote("Vous avez gardé votre valise !");
     setPhase("game_over");
   }
 
@@ -155,7 +155,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
     const playerCase = cases.find((c) => c.id === playerCaseId)!;
     setFinalText(other.text);
     setEndNote(
-      `You swapped to case #${other.id}. Yours had: ${playerCase.text}`,
+      `Vous avez échangé avec la valise n°${other.id}. La vôtre contenait : ${playerCase.text}`,
     );
     setPhase("game_over");
   }
@@ -184,14 +184,14 @@ export default function DealOrNoDeal({ onBack }: Props) {
     <div className="dond-root">
       <div className="dond-header">
         <button className="dond-back" onClick={onBack}>
-          ← Back
+          ← Retour
         </button>
         <h1 className="dond-title">Deal or No Deal</h1>
         <div className="dond-status">
-          {phase === "picking" && <span>Pick your case!</span>}
+          {phase === "picking" && <span>Choisissez votre valise !</span>}
           {phase === "opening" && (
             <span>
-              Round {round} — Open <strong>{leftToOpen}</strong> more
+              Manche {round} — Ouvrez encore <strong>{leftToOpen}</strong>
             </span>
           )}
         </div>
@@ -218,7 +218,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
         <div className="dond-center">
           {playerCaseId && (
             <div className="dond-my-case">
-              <span className="dond-my-label">Your Case</span>
+              <span className="dond-my-label">Votre valise</span>
               <div className="dond-case selected">#{playerCaseId}</div>
             </div>
           )}
@@ -276,7 +276,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
         lastOpenedValue !== null && (
           <div className="dond-overlay">
             <div className="dond-modal reveal-modal">
-              <p className="dond-sublabel">Case contained</p>
+              <p className="dond-sublabel">La valise contenait</p>
               <div
                 className={`dond-big-amt reveal-amt ${lastOpenedValue >= 100000 ? "bad" : lastOpenedValue >= 10000 ? "mid" : "good"}`}
               >
@@ -287,8 +287,8 @@ export default function DealOrNoDeal({ onBack }: Props) {
                 onClick={handleRevealContinue}
               >
                 {nextPhase === "offer"
-                  ? "Call the Banker →"
-                  : "Final Decision →"}
+                  ? "Appeler le Banquier →"
+                  : "Décision finale →"}
               </button>
             </div>
           </div>
@@ -302,7 +302,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
               lastOpenedText !== null &&
               lastOpenedValue !== null && (
                 <p className="dond-last-opened">
-                  Case <strong>#{lastOpenedId}</strong> contained{" "}
+                  Valise <strong>n°{lastOpenedId}</strong> contenait{" "}
                   <strong
                     className={
                       lastOpenedValue >= 100000
@@ -317,15 +317,15 @@ export default function DealOrNoDeal({ onBack }: Props) {
                 </p>
               )}
             <div className="dond-phone">📞</div>
-            <p className="dond-caller">The Banker is calling…</p>
+            <p className="dond-caller">Le Banquier appelle…</p>
             <div className="dond-big-amt">{closestText(bankerOffer)}</div>
-            <p className="dond-sublabel">THE BANKER'S OFFER</p>
+            <p className="dond-sublabel">L'OFFRE DU BANQUIER</p>
             <div className="dond-actions">
               <button className="dond-btn deal" onClick={handleDeal}>
-                DEAL!
+                BANCO !
               </button>
               <button className="dond-btn nodeal" onClick={handleNoDeal}>
-                NO DEAL!
+                PAS BANCO !
               </button>
             </div>
           </div>
@@ -336,17 +336,17 @@ export default function DealOrNoDeal({ onBack }: Props) {
       {phase === "final_swap" && lastCase && (
         <div className="dond-overlay">
           <div className="dond-modal">
-            <h2>One Last Decision</h2>
+            <h2>Dernière décision</h2>
             <p>
-              Swap your case <strong>#{playerCaseId}</strong> for case{" "}
-              <strong>#{lastCase.id}</strong>?
+              Échangez votre valise <strong>n°{playerCaseId}</strong> contre la
+              valise <strong>n°{lastCase.id}</strong> ?
             </p>
             <div className="dond-actions">
               <button className="dond-btn deal" onClick={handleSwap}>
-                SWAP!
+                ÉCHANGER !
               </button>
               <button className="dond-btn nodeal" onClick={handleKeep}>
-                KEEP!
+                GARDER !
               </button>
             </div>
           </div>
@@ -357,15 +357,15 @@ export default function DealOrNoDeal({ onBack }: Props) {
       {phase === "game_over" && (
         <div className="dond-overlay">
           <div className="dond-modal">
-            <h2>{dealTaken ? "Deal Taken!" : "Game Over!"}</h2>
+            <h2>{dealTaken ? "Banco !" : "Fin de partie !"}</h2>
             <div className="dond-big-amt won">{finalText}</div>
-            <p className="dond-sublabel">YOU WON</p>
+            <p className="dond-sublabel">VOUS AVEZ GAGNÉ</p>
             {endNote && <p className="dond-endnote">{endNote}</p>}
             <button className="dond-btn restart" onClick={handleRestart}>
-              Play Again
+              Rejouer
             </button>
             <button className="dond-btn back" onClick={onBack}>
-              Back to Hub
+              Retour au menu
             </button>
           </div>
         </div>
