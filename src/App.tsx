@@ -5,13 +5,11 @@ import DealOrNoDeal from "./games/DealOrNoDeal";
 
 const GAMES = [
   { id: "quiz", label: "Quiz", icon: "🧠", color: "#7c3aed" },
-  { id: "word", label: "Word Scramble", icon: "🔤", color: "#0891b2" },
   { id: "memory", label: "Memory Match", icon: "🃏", color: "#b45309" },
   { id: "drawing", label: "Drawing", icon: "🎨", color: "#be185d" },
-  { id: "buzzer", label: "Buzzer", icon: "🔔", color: "#15803d" },
   { id: "snake", label: "Snake", icon: "🐍", color: "#b91c1c" },
-  { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#d97706" },
-  { id: "dond", label: "Deal or No Deal", icon: "💼", color: "#b45309" },
+  { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#0891b2" },
+  { id: "dond", label: "À prendre ou à laisser", icon: "💼", color: "#15803d" },
 ];
 
 function App() {

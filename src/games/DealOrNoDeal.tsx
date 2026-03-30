@@ -186,7 +186,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
         <button className="dond-back" onClick={onBack}>
           ← Retour
         </button>
-        <h1 className="dond-title">Deal or No Deal</h1>
+        <h1 className="dond-title">À prendre ou à laisser</h1>
         <div className="dond-status">
           {phase === "picking" && <span>Choisissez votre valise !</span>}
           {phase === "opening" && (
@@ -322,10 +322,10 @@ export default function DealOrNoDeal({ onBack }: Props) {
             <p className="dond-sublabel">L'OFFRE DU BANQUIER</p>
             <div className="dond-actions">
               <button className="dond-btn deal" onClick={handleDeal}>
-                BANCO !
+                ACCEPTER
               </button>
               <button className="dond-btn nodeal" onClick={handleNoDeal}>
-                PAS BANCO !
+                REFUSER
               </button>
             </div>
           </div>
