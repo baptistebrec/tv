@@ -225,6 +225,19 @@
   color: #ffd700;
 }
 
+.dond-last-opened {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0 0 0.75rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.4rem;
+}
+
+.dond-last-opened .good { color: #4ade80; }
+.dond-last-opened .mid  { color: #fb923c; }
+.dond-last-opened .bad  { color: #f87171; }
+
 .dond-phone {
   font-size: 2.8rem;
   animation: dond-ring 0.4s ease-in-out infinite alternate;
@@ -311,6 +324,19 @@
   width: 100%;
   margin-top: 1.25rem;
 }
+
+.dond-btn.continue {
+  background: #d97706;
+  color: #fff;
+  display: block;
+  width: 100%;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+}
+
+.dond-big-amt.good { color: #4ade80; text-shadow: 0 0 24px rgba(74, 222, 128, 0.5); }
+.dond-big-amt.mid  { color: #fb923c; text-shadow: 0 0 24px rgba(251, 146, 60, 0.5); }
+.dond-big-amt.bad  { color: #f87171; text-shadow: 0 0 24px rgba(248, 113, 113, 0.5); }
 
 .dond-btn.back {
   background: transparent;

@@ -42,7 +42,8 @@ function initCases(): Case[] {
 export default function DealOrNoDeal({ onBack }: Props) {
   const [cases, setCases] = useState<Case[]>(initCases);
   const [playerCaseId, setPlayerCaseId] = useState<number | null>(null);
-  const [phase, setPhase] = useState<"picking" | "opening" | "offer" | "final_swap" | "game_over">("picking");
+  const [phase, setPhase] = useState<"picking" | "opening" | "revealing" | "offer" | "final_swap" | "game_over">("picking");
+  const [nextPhase, setNextPhase] = useState<"offer" | "final_swap" | null>(null);
   const [round, setRound] = useState(1);
   const [openedThisRound, setOpenedThisRound] = useState(0);
   const [bankerOffer, setBankerOffer] = useState(0);
@@ -50,6 +51,7 @@ export default function DealOrNoDeal({ onBack }: Props) {
   const [finalAmount, setFinalAmount] = useState(0);
   const [endNote, setEndNote] = useState("");
   const [lastOpenedAmount, setLastOpenedAmount] = useState<number | null>(null);
+  const [lastOpenedId, setLastOpenedId] = useState<number | null>(null);
 
   const casesToOpen = ROUND_CASES[Math.min(round - 1, ROUND_CASES.length - 1)];
   const leftToOpen = casesToOpen - openedThisRound;
@@ -67,11 +69,13 @@ export default function DealOrNoDeal({ onBack }: Props) {
     const newCases = cases.map((c) => (c.id === id ? { ...c, opened: true } : c));
     setCases(newCases);
     setLastOpenedAmount(c.amount);
+    setLastOpenedId(c.id);
 
     const remaining = newCases.filter((c) => !c.opened && c.id !== playerCaseId);
 
     if (remaining.length === 1) {
-      setPhase("final_swap");
+      setNextPhase("final_swap");
+      setPhase("revealing");
       return;
     }
 
@@ -82,10 +86,16 @@ export default function DealOrNoDeal({ onBack }: Props) {
       const pct = Math.min(0.1 + round * 0.08, 0.95);
       setBankerOffer(Math.round(expected * pct));
       setOpenedThisRound(0);
-      setPhase("offer");
+      setNextPhase("offer");
+      setPhase("revealing");
     } else {
       setOpenedThisRound(newOpened);
     }
+  }
+
+  function handleRevealContinue() {
+    setPhase(nextPhase!);
+    setNextPhase(null);
   }
 
   function handleDeal() {
@@ -128,6 +138,8 @@ export default function DealOrNoDeal({ onBack }: Props) {
     setFinalAmount(0);
     setEndNote("");
     setLastOpenedAmount(null);
+    setLastOpenedId(null);
+    setNextPhase(null);
   }
 
   const lastCase = cases.find((c) => !c.opened && c.id !== playerCaseId);
@@ -212,10 +224,33 @@ export default function DealOrNoDeal({ onBack }: Props) {
         </div>
       </div>
 
+      {/* Value Reveal */}
+      {phase === "revealing" && lastOpenedAmount !== null && (
+        <div className="dond-overlay">
+          <div className="dond-modal reveal-modal">
+            <p className="dond-sublabel">Case contained</p>
+            <div className={`dond-big-amt reveal-amt ${lastOpenedAmount >= 100000 ? "bad" : lastOpenedAmount >= 10000 ? "mid" : "good"}`}>
+              {fmt(lastOpenedAmount)}
+            </div>
+            <button className="dond-btn continue" onClick={handleRevealContinue}>
+              {nextPhase === "offer" ? "Call the Banker →" : "Final Decision →"}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Banker Offer */}
       {phase === "offer" && (
         <div className="dond-overlay">
           <div className="dond-modal">
+            {lastOpenedId !== null && lastOpenedAmount !== null && (
+              <p className="dond-last-opened">
+                Case <strong>#{lastOpenedId}</strong> contained{" "}
+                <strong className={lastOpenedAmount >= 100000 ? "bad" : lastOpenedAmount >= 10000 ? "mid" : "good"}>
+                  {fmt(lastOpenedAmount)}
+                </strong>
+              </p>
+            )}
             <div className="dond-phone">📞</div>
             <p className="dond-caller">The Banker is calling…</p>
             <div className="dond-big-amt">{fmt(bankerOffer)}</div>
