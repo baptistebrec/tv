@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import { WheelOfFortune } from "./games/WheelOfFortune";
 import DealOrNoDeal from "./games/DealOrNoDeal";
+import { Pyramide } from "./games/Pyramide";
 
 const GAMES = [
   { id: "quiz", label: "Quiz", icon: "🧠", color: "#7c3aed" },
@@ -10,6 +11,7 @@ const GAMES = [
   { id: "snake", label: "Snake", icon: "🐍", color: "#b91c1c" },
   { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#0891b2" },
   { id: "dond", label: "À prendre ou à laisser", icon: "💼", color: "#15803d" },
+  { id: "pyramide", label: "Pyramide", icon: "🔺", color: "#b45309" },
 ];
 
 function App() {
@@ -18,6 +20,10 @@ function App() {
 
   if (activeGame === "dond") {
     return <DealOrNoDeal onBack={() => setActiveGame(null)} />;
+  }
+
+  if (activeGame === "pyramide") {
+    return <Pyramide onBack={() => setActiveGame(null)} />;
   }
 
   if (activeGame === "wheel" && wheelPlayers) {
