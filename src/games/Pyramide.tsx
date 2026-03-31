@@ -35,7 +35,21 @@ interface R3State {
   lastWordCorrect: boolean | null;
 }
 
-type Phase = "setup" | "ready" | "playing" | "roundover" | "round3_ready" | "round3" | "results";
+// Round 4: same as round 3 but with swapped roles (player[1] hints, player[0] guesses)
+type R4SubPhase = "bidding" | "guessing" | "word_result";
+
+interface R4State {
+  words: GameWord[];
+  wordIdx: number;
+  wordInitiator: number;   // team that opens bidding for current word
+  subPhase: R4SubPhase;
+  guessingTeam: number;
+  hintsLeft: number;
+  scores: [number, number];
+  lastWordCorrect: boolean | null;
+}
+
+type Phase = "setup" | "ready" | "playing" | "roundover" | "round3_ready" | "round3" | "round4_ready" | "round4" | "results";
 
 function pickWords(): GameWord[] {
   return [...MYSTERY_WORDS]
@@ -144,6 +158,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   ]);
 
   const [r3, setR3] = useState<R3State | null>(null);
+  const [r4, setR4] = useState<R4State | null>(null);
 
   const timerRef = useRef<number | null>(null);
   const roundEndedRef = useRef(false);
@@ -304,7 +319,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (!r3) return;
     const nextIdx = r3.wordIdx + 1;
     if (nextIdx >= WORDS_PER_ROUND) {
-      setPhase("results");
+      setPhase("round4_ready");
       return;
     }
     const nextInit = 1 - r3.wordInitiator;
@@ -319,13 +334,72 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     });
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Round 4 logic ──────────────────────────────────────────────────────────────
+
+  function initRound4() {
+    if (!r3) return;
+    const startTeam = 1 - r3.wordInitiator; // Opposite of the team that started R3
+    setR4({
+      words: pickWords(),
+      wordIdx: 0,
+      wordInitiator: startTeam,
+      subPhase: "bidding",
+      guessingTeam: startTeam,
+      hintsLeft: 0,
+      scores: [0, 0],
+      lastWordCorrect: null,
+    });
+    setPhase("round4");
+  }
+
+  function r4Confirm(team: number, hints: number) {
+    if (!r4) return;
+    setR4({ ...r4, guessingTeam: team, hintsLeft: hints, subPhase: "guessing" });
+  }
+
+  function r4HintGiven() {
+    if (!r4 || r4.hintsLeft <= 0) return;
+    setR4({ ...r4, hintsLeft: r4.hintsLeft - 1 });
+  }
+
+  function r4WordResult(correct: boolean) {
+    if (!r4) return;
+    const pointTeam = correct ? r4.guessingTeam : 1 - r4.guessingTeam;
+    const newScores: [number, number] = [...r4.scores] as [number, number];
+    newScores[pointTeam]++;
+    const newWords = r4.words.map((w, i) =>
+      i === r4.wordIdx
+        ? { ...w, state: (correct ? "correct" : "failed") as WordState, scoredByTeam: pointTeam }
+        : w
+    );
+    setR4({ ...r4, words: newWords, scores: newScores, lastWordCorrect: correct, subPhase: "word_result" });
+  }
+
+  function r4NextWord() {
+    if (!r4) return;
+    const nextIdx = r4.wordIdx + 1;
+    if (nextIdx >= WORDS_PER_ROUND) {
+      setPhase("results");
+      return;
+    }
+    const nextInit = 1 - r4.wordInitiator;
+    setR4({
+      ...r4,
+      wordIdx: nextIdx,
+      wordInitiator: nextInit,
+      subPhase: "bidding",
+      guessingTeam: nextInit,
+      hintsLeft: 0,
+      lastWordCorrect: null,
+    });
+  }
 
   // Round 1: player[0] hints, player[1] guesses
   // Round 2: player[1] hints, player[0] guesses
   // Round 3: player[0] hints, player[1] guesses (same as R1)
+  // Round 4: player[1] hints, player[0] guesses (same as R2)
   function getRoles(team: number, round: number) {
-    return round === 2
+    return round === 2 || round === 4
       ? { hinter: players[team][1], guesser: players[team][0] }
       : { hinter: players[team][0], guesser: players[team][1] };
   }
@@ -686,10 +760,187 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     }
   }
 
-  // ── RESULTS ────────────────────────────────────────────────────────────────
+  // ── ROUND 4 READY ──────────────────────────────────────────────────────────
+  if (phase === "round4_ready") {
+    const r3Scores = r3?.scores ?? [0, 0];
+    const startTeam = r3 ? 1 - r3.wordInitiator : 0; // Opposite of the team that started R3
+    const scores123 = [0, 1].map((ti) =>
+      (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti]
+    );
+    const times12 = [0, 1].map((ti) =>
+      (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
+    );
+    const startReason = `N'a pas ouvert la manche 3`;
+
+    return (
+      <div className="pyr-root">
+        <div className="pyr-setup">
+          <div className="pyr-round-label">Manche 4 — Enchères (rôles inversés)</div>
+          <div className="pyr-scores-recap">
+            {[0, 1].map((ti) => (
+              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`} style={{ borderColor: TEAM_COLORS[ti] }}>
+                <div className="pyr-recap-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
+                <div className="pyr-recap-score">{scores123[ti]} pts</div>
+                <div className="pyr-recap-time">⏱ {times12[ti]}s</div>
+              </div>
+            ))}
+          </div>
+          <div className="pyr-start-badge">
+            Équipe {startTeam + 1} ouvre les enchères
+            <div className="pyr-start-reason">{startReason}</div>
+          </div>
+          <div className="pyr-role-card">
+            {[0, 1].map((ti) => (
+              <div key={ti} className="pyr-role">
+                <span className="pyr-role-icon">🎤</span>
+                <strong>{players[ti][1]}</strong>
+                <span className="pyr-role-desc">enchérit · indice</span>
+                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>🤔</span>
+                <strong>{players[ti][0]}</strong>
+                <span className="pyr-role-desc">devine</span>
+              </div>
+            ))}
+          </div>
+          <div className="pyr-rules-mini">
+            <p>Le mot est révélé aux deux hinteurs</p>
+            <p>L'équipe qui ouvre annonce N indices</p>
+            <p>L'autre peut descendre ou laisser jouer</p>
+            <p>L'équipe qui a le dernier mot doit deviner</p>
+          </div>
+          <button className="pyr-btn pyr-btn--primary" onClick={() => initRound4()}>
+            C'est parti !
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── ROUND 4 ────────────────────────────────────────────────────────────────
+  if (phase === "round4" && r4) {
+    const w4 = r4.words[r4.wordIdx];
+
+    // Score dots for progress
+    const r3Scores = r3?.scores ?? [0, 0];
+    const scoreDots = (
+      <div className="pyr-r3-scoreboard">
+        <span className="pyr-r3-team" style={{ color: TEAM_COLORS[0] }}>
+          Éq.1 <strong>{r4.scores[0]}</strong>
+        </span>
+        <div className="pyr-word-dots">
+          {r4.words.map((w, i) => {
+            const isActive = i === r4.wordIdx && r4.subPhase !== "word_result";
+            const dotColor = isActive ? "#ffd700" : w.scoredByTeam !== undefined ? TEAM_COLORS[w.scoredByTeam] : undefined;
+            return (
+              <div
+                key={i}
+                className={`pyr-dot pyr-dot--${isActive ? "active" : w.state}`}
+                style={dotColor ? { background: dotColor, borderColor: dotColor } : undefined}
+              />
+            );
+          })}
+        </div>
+        <span className="pyr-r3-team" style={{ color: TEAM_COLORS[1] }}>
+          <strong>{r4.scores[1]}</strong> Éq.2
+        </span>
+      </div>
+    );
+
+    // ── bidding: pick team + number of hints ───────────────────────────────
+    if (r4.subPhase === "bidding") {
+      return (
+        <BiddingView
+          wordText={w4.text}
+          wordIdx={r4.wordIdx}
+          wordInitiator={r4.wordInitiator}
+          players={players}
+          scoreDots={scoreDots}
+          onConfirm={r4Confirm}
+        />
+      );
+    }
+
+    // ── guessing ────────────────────────────────────────────────────────────
+    if (r4.subPhase === "guessing") {
+      const gHinter = players[r4.guessingTeam][1]; // Round 4 has swapped roles
+      const gGuesser = players[r4.guessingTeam][0];
+      return (
+        <div className="pyr-root">
+          <div className="pyr-game">
+            <div className="pyr-round-label">Manche 4 — Mot {r4.wordIdx + 1}/5</div>
+            <div className="pyr-word-card">
+              <div className="pyr-word-text">{w4.text}</div>
+            </div>
+            <div className="pyr-role-card" style={{ width: "100%", borderColor: TEAM_COLORS[r4.guessingTeam] }}>
+              <div className="pyr-role">
+                <span className="pyr-role-icon">🎤</span>
+                <strong style={{ color: TEAM_COLORS[r4.guessingTeam] }}>{gHinter}</strong>
+                <span className="pyr-role-desc">Éq.{r4.guessingTeam + 1} — donne les indices</span>
+              </div>
+              <div className="pyr-role-arrow">→</div>
+              <div className="pyr-role">
+                <span className="pyr-role-icon">🤔</span>
+                <strong>{gGuesser}</strong>
+                <span className="pyr-role-desc">devine</span>
+              </div>
+            </div>
+            <div className={`pyr-hints-left${r4.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}>
+              {r4.hintsLeft} indice{r4.hintsLeft !== 1 ? "s" : ""} restant{r4.hintsLeft !== 1 ? "s" : ""}
+            </div>
+            <div className="pyr-actions-3">
+              <button
+                className="pyr-btn pyr-btn--pass"
+                onClick={r4HintGiven}
+                disabled={r4.hintsLeft === 0}
+              >
+                Indice donné
+              </button>
+              <button className="pyr-btn pyr-btn--correct" onClick={() => r4WordResult(true)}>
+                ✓ Trouvé !
+              </button>
+              <button className="pyr-btn pyr-btn--forbidden" onClick={() => r4WordResult(false)}>
+                ✗ Raté
+              </button>
+            </div>
+            {scoreDots}
+          </div>
+        </div>
+      );
+    }
+
+    // ── word result ─────────────────────────────────────────────────────────
+    if (r4.subPhase === "word_result") {
+      const isLast = r4.wordIdx >= WORDS_PER_ROUND - 1;
+      return (
+        <div className="pyr-root">
+          <div className="pyr-roundover">
+            <div className="pyr-round-label">Manche 4 — Mot {r4.wordIdx + 1}/5</div>
+            <div className={`pyr-r3-result${r4.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}>
+              {r4.lastWordCorrect ? "✓ Trouvé !" : "✗ Pas trouvé"}
+            </div>
+            <div className="pyr-word-card" style={{ opacity: 0.7 }}>
+              <div className="pyr-word-text">{w4.text}</div>
+            </div>
+            <div className="pyr-r3-scoreboard pyr-r3-scoreboard--big">
+              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[0] }}>
+                Éq.1<br /><strong>{r4.scores[0]}</strong>
+              </span>
+              <span className="pyr-r3-sep">—</span>
+              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[1] }}>
+                Éq.2<br /><strong>{r4.scores[1]}</strong>
+              </span>
+            </div>
+            <button className="pyr-btn pyr-btn--primary" onClick={r4NextWord}>
+              {isLast ? "Résultats finaux" : `Mot ${r4.wordIdx + 2} →`}
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
   const r3Scores = r3?.scores ?? [0, 0];
+  const r4Scores = r4?.scores ?? [0, 0];
   const totals = [0, 1].map((ti) =>
-    (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti]
+    (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti] + r4Scores[ti]
   );
   const totalTimes = [0, 1].map((ti) =>
     (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
@@ -717,23 +968,36 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               <div className="pyr-final-score">{totals[ti]} pts</div>
               <div className="pyr-final-time">⏱ {totalTimes[ti]}s</div>
               <div className="pyr-final-breakdown">
-                {[0, 1].map((ri) => {
-                  const { hinter: h, guesser: g } = getRoles(ti, ri + 1);
-                  const r = results[ti][ri];
-                  return (
-                    <div key={ri} className="pyr-final-row">
-                      <span className="pyr-final-round">M{ri + 1}</span>
-                      <span className="pyr-final-players">{h} → {g}</span>
-                      <span className="pyr-final-pts">{r?.score ?? 0}pt</span>
-                      <span className="pyr-final-rowtime">{r?.timeUsed ?? 0}s</span>
-                    </div>
-                  );
+                {[0, 1, 2, 3].map((ri) => {
+                  if (ri < 2) {
+                    const { hinter: h, guesser: g } = getRoles(ti, ri + 1);
+                    const r = results[ti][ri];
+                    return (
+                      <div key={ri} className="pyr-final-row">
+                        <span className="pyr-final-round">M{ri + 1}</span>
+                        <span className="pyr-final-players">{h} → {g}</span>
+                        <span className="pyr-final-pts">{r?.score ?? 0}pt</span>
+                        <span className="pyr-final-rowtime">{r?.timeUsed ?? 0}s</span>
+                      </div>
+                    );
+                  } else if (ri === 2) {
+                    return (
+                      <div key={ri} className="pyr-final-row">
+                        <span className="pyr-final-round">M3</span>
+                        <span className="pyr-final-players">Enchères</span>
+                        <span className="pyr-final-pts">{r3Scores[ti]}pt</span>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div key={ri} className="pyr-final-row">
+                        <span className="pyr-final-round">M4</span>
+                        <span className="pyr-final-players">Enchères (inv.)</span>
+                        <span className="pyr-final-pts">{r4Scores[ti]}pt</span>
+                      </div>
+                    );
+                  }
                 })}
-                <div className="pyr-final-row">
-                  <span className="pyr-final-round">M3</span>
-                  <span className="pyr-final-players">Enchères</span>
-                  <span className="pyr-final-pts">{r3Scores[ti]}pt</span>
-                </div>
               </div>
             </div>
           ))}
