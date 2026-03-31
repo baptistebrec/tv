@@ -27,7 +27,7 @@ type R3SubPhase = "bidding" | "guessing" | "word_result";
 interface R3State {
   words: GameWord[];
   wordIdx: number;
-  wordInitiator: number;   // team that opens bidding for current word
+  wordInitiator: number; // team that opens bidding for current word
   subPhase: R3SubPhase;
   guessingTeam: number;
   hintsLeft: number;
@@ -41,7 +41,7 @@ type R4SubPhase = "bidding" | "guessing" | "word_result";
 interface R4State {
   words: GameWord[];
   wordIdx: number;
-  wordInitiator: number;   // team that opens bidding for current word
+  wordInitiator: number; // team that opens bidding for current word
   subPhase: R4SubPhase;
   guessingTeam: number;
   hintsLeft: number;
@@ -49,13 +49,26 @@ interface R4State {
   lastWordCorrect: boolean | null;
 }
 
-type Phase = "setup" | "ready" | "playing" | "roundover" | "round3_ready" | "round3" | "round4_ready" | "round4" | "results";
+type Phase =
+  | "setup"
+  | "ready"
+  | "playing"
+  | "roundover"
+  | "round3_ready"
+  | "round3"
+  | "round4_ready"
+  | "round4"
+  | "results";
 
 function pickWords(): GameWord[] {
   return [...MYSTERY_WORDS]
     .sort(() => Math.random() - 0.5)
     .slice(0, WORDS_PER_ROUND)
-    .map((w) => ({ text: w.text, theme: w.theme, state: "pending" as WordState }));
+    .map((w) => ({
+      text: w.text,
+      theme: w.theme,
+      state: "pending" as WordState,
+    }));
 }
 
 // Play order for rounds 1 & 2: R1-T0, R1-T1, R2-T0, R2-T1
@@ -101,11 +114,20 @@ function BiddingView({
             <button
               key={ti}
               className={`pyr-bid-team-btn${selectedTeam === ti ? " pyr-bid-team-btn--selected" : ""}`}
-              style={{ borderColor: selectedTeam === ti ? TEAM_COLORS[ti] : undefined }}
+              style={{
+                borderColor: selectedTeam === ti ? TEAM_COLORS[ti] : undefined,
+              }}
               onClick={() => setSelectedTeam(ti)}
             >
-              <span className="pyr-bid-team-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</span>
-              <span className="pyr-bid-team-players">{players[ti][0]} → {players[ti][1]}</span>
+              <span
+                className="pyr-bid-team-name"
+                style={{ color: TEAM_COLORS[ti] }}
+              >
+                Équipe {ti + 1}
+              </span>
+              <span className="pyr-bid-team-players">
+                {players[ti][0]} → {players[ti][1]}
+              </span>
             </button>
           ))}
         </div>
@@ -228,7 +250,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (queue.length === 0) return;
     const idx = queue[0];
     const newWords = words.map((w, i) =>
-      i === idx ? { ...w, state: "correct" as WordState } : w
+      i === idx ? { ...w, state: "correct" as WordState } : w,
     );
     const newQueue = queue.slice(1);
     wordsRef.current = newWords;
@@ -246,7 +268,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (queue.length === 0) return;
     const idx = queue[0];
     const newWords = words.map((w, i) =>
-      i === idx ? { ...w, state: "eliminated" as WordState } : w
+      i === idx ? { ...w, state: "eliminated" as WordState } : w,
     );
     const newQueue = queue.slice(1);
     wordsRef.current = newWords;
@@ -294,7 +316,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   function r3Confirm(team: number, hints: number) {
     if (!r3) return;
-    setR3({ ...r3, guessingTeam: team, hintsLeft: hints, subPhase: "guessing" });
+    setR3({
+      ...r3,
+      guessingTeam: team,
+      hintsLeft: hints,
+      subPhase: "guessing",
+    });
   }
 
   function r3HintGiven() {
@@ -309,10 +336,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     newScores[pointTeam]++;
     const newWords = r3.words.map((w, i) =>
       i === r3.wordIdx
-        ? { ...w, state: (correct ? "correct" : "failed") as WordState, scoredByTeam: pointTeam }
-        : w
+        ? {
+            ...w,
+            state: (correct ? "correct" : "failed") as WordState,
+            scoredByTeam: pointTeam,
+          }
+        : w,
     );
-    setR3({ ...r3, words: newWords, scores: newScores, lastWordCorrect: correct, subPhase: "word_result" });
+    setR3({
+      ...r3,
+      words: newWords,
+      scores: newScores,
+      lastWordCorrect: correct,
+      subPhase: "word_result",
+    });
   }
 
   function r3NextWord() {
@@ -354,7 +391,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   function r4Confirm(team: number, hints: number) {
     if (!r4) return;
-    setR4({ ...r4, guessingTeam: team, hintsLeft: hints, subPhase: "guessing" });
+    setR4({
+      ...r4,
+      guessingTeam: team,
+      hintsLeft: hints,
+      subPhase: "guessing",
+    });
   }
 
   function r4HintGiven() {
@@ -369,10 +411,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     newScores[pointTeam]++;
     const newWords = r4.words.map((w, i) =>
       i === r4.wordIdx
-        ? { ...w, state: (correct ? "correct" : "failed") as WordState, scoredByTeam: pointTeam }
-        : w
+        ? {
+            ...w,
+            state: (correct ? "correct" : "failed") as WordState,
+            scoredByTeam: pointTeam,
+          }
+        : w,
     );
-    setR4({ ...r4, words: newWords, scores: newScores, lastWordCorrect: correct, subPhase: "word_result" });
+    setR4({
+      ...r4,
+      words: newWords,
+      scores: newScores,
+      lastWordCorrect: correct,
+      subPhase: "word_result",
+    });
   }
 
   function r4NextWord() {
@@ -414,13 +466,24 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   if (phase === "setup") {
     return (
       <div className="pyr-root">
-        <button className="pyr-back" onClick={onBack}>← Retour</button>
+        <button className="pyr-back" onClick={onBack}>
+          ← Retour
+        </button>
         <div className="pyr-setup">
           <div className="pyr-logo">🔺</div>
           <h1 className="pyr-title">Pyramide</h1>
           {[0, 1].map((ti) => (
-            <div key={ti} className="pyr-team-inputs" style={{ borderColor: TEAM_COLORS[ti] }}>
-              <div className="pyr-team-label" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
+            <div
+              key={ti}
+              className="pyr-team-inputs"
+              style={{ borderColor: TEAM_COLORS[ti] }}
+            >
+              <div
+                className="pyr-team-label"
+                style={{ color: TEAM_COLORS[ti] }}
+              >
+                Équipe {ti + 1}
+              </div>
               {[0, 1].map((pi) => (
                 <input
                   key={pi}
@@ -440,7 +503,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           ))}
           <button
             className="pyr-btn pyr-btn--primary"
-            onClick={() => { setTurnIdx(0); setPhase("ready"); }}
+            onClick={() => {
+              setTurnIdx(0);
+              setPhase("ready");
+            }}
           >
             Commencer →
           </button>
@@ -451,17 +517,27 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   // ── READY ──────────────────────────────────────────────────────────────────
   if (phase === "ready") {
-    const prevTurns = PLAY_ORDER.slice(0, turnIdx).filter((t) => t.team === currentTeam);
+    const prevTurns = PLAY_ORDER.slice(0, turnIdx).filter(
+      (t) => t.team === currentTeam,
+    );
     const prevScore = prevTurns.reduce(
       (sum, t) => sum + (results[t.team][t.round - 1]?.score ?? 0),
-      0
+      0,
     );
 
     return (
       <div className="pyr-root">
         <div className="pyr-setup">
-          <div className="pyr-round-label" style={{ color: TEAM_COLORS[currentTeam] }}>Manche {currentRound} — Équipe {currentTeam + 1}</div>
-          <div className="pyr-role-card" style={{ borderColor: TEAM_COLORS[currentTeam] }}>
+          <div
+            className="pyr-round-label"
+            style={{ color: TEAM_COLORS[currentTeam] }}
+          >
+            Manche {currentRound} — Équipe {currentTeam + 1}
+          </div>
+          <div
+            className="pyr-role-card"
+            style={{ borderColor: TEAM_COLORS[currentTeam] }}
+          >
             <div className="pyr-role">
               <span className="pyr-role-icon">🎤</span>
               <strong>{hinter}</strong>
@@ -481,7 +557,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           </div>
           {prevTurns.length > 0 && (
             <div className="pyr-prev-score">
-              Score actuel : <strong>{prevScore} pt{prevScore !== 1 ? "s" : ""}</strong>
+              Score actuel :{" "}
+              <strong>
+                {prevScore} pt{prevScore !== 1 ? "s" : ""}
+              </strong>
             </div>
           )}
           <button className="pyr-btn pyr-btn--primary" onClick={startPlaying}>
@@ -503,7 +582,9 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               <span className="pyr-arrow-sm">→</span>
               <span>🤔 {guesser}</span>
             </div>
-            <span className={`pyr-timer${timeLeft <= 10 ? " pyr-timer--urgent" : ""}`}>
+            <span
+              className={`pyr-timer${timeLeft <= 10 ? " pyr-timer--urgent" : ""}`}
+            >
               {timeLeft}s
             </span>
           </div>
@@ -519,26 +600,47 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           )}
 
           <div className="pyr-counters">
-            <span className="pyr-counter pyr-counter--correct">✓ {correctCount}</span>
-            <span className="pyr-counter pyr-counter--pending">⏳ {pendingCount}</span>
-            <span className="pyr-counter pyr-counter--elim">🚫 {eliminatedCount}</span>
+            <span className="pyr-counter pyr-counter--correct">
+              ✓ {correctCount}
+            </span>
+            <span className="pyr-counter pyr-counter--pending">
+              ⏳ {pendingCount}
+            </span>
+            <span className="pyr-counter pyr-counter--elim">
+              🚫 {eliminatedCount}
+            </span>
           </div>
 
           <div className="pyr-actions-3">
-            <button className="pyr-btn pyr-btn--forbidden" onClick={handleForbidden} disabled={!currentWord}>
+            <button
+              className="pyr-btn pyr-btn--forbidden"
+              onClick={handleForbidden}
+              disabled={!currentWord}
+            >
               🚫 Interdit
             </button>
-            <button className="pyr-btn pyr-btn--pass" onClick={handlePass} disabled={!currentWord || pendingCount <= 1}>
+            <button
+              className="pyr-btn pyr-btn--pass"
+              onClick={handlePass}
+              disabled={!currentWord || pendingCount <= 1}
+            >
               ⏭ Passer
             </button>
-            <button className="pyr-btn pyr-btn--correct" onClick={handleCorrect} disabled={!currentWord}>
+            <button
+              className="pyr-btn pyr-btn--correct"
+              onClick={handleCorrect}
+              disabled={!currentWord}
+            >
               ✓ Trouvé !
             </button>
           </div>
 
           <div className="pyr-word-dots">
             {words.map((w, i) => (
-              <div key={i} className={`pyr-dot pyr-dot--${queue[0] === i ? "active" : w.state}`} />
+              <div
+                key={i}
+                className={`pyr-dot pyr-dot--${queue[0] === i ? "active" : w.state}`}
+              />
             ))}
           </div>
         </div>
@@ -557,15 +659,25 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     return (
       <div className="pyr-root">
         <div className="pyr-roundover">
-          <div className="pyr-round-label" style={{ color: TEAM_COLORS[currentTeam] }}>Manche {currentRound} — Équipe {currentTeam + 1}</div>
+          <div
+            className="pyr-round-label"
+            style={{ color: TEAM_COLORS[currentTeam] }}
+          >
+            Manche {currentRound} — Équipe {currentTeam + 1}
+          </div>
           <div className="pyr-score-big">
-            {r.score}<span className="pyr-score-denom">/5</span>
+            {r.score}
+            <span className="pyr-score-denom">/5</span>
           </div>
           <div className="pyr-word-list">
             {r.words.map((w, i) => (
               <div key={i} className={`pyr-word-row pyr-word-row--${w.state}`}>
                 <span className="pyr-word-row-icon">
-                  {w.state === "correct" ? "✓" : w.state === "eliminated" ? "🚫" : "—"}
+                  {w.state === "correct"
+                    ? "✓"
+                    : w.state === "eliminated"
+                      ? "🚫"
+                      : "—"}
                 </span>
                 <span>{w.text}</span>
               </div>
@@ -582,11 +694,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   // ── ROUND 3 READY ──────────────────────────────────────────────────────────
   if (phase === "round3_ready") {
     const startTeam = getR3StartTeam(results);
-    const scores12 = [0, 1].map((ti) =>
-      (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0)
+    const scores12 = [0, 1].map(
+      (ti) => (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0),
     );
-    const times12 = [0, 1].map((ti) =>
-      (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
+    const times12 = [0, 1].map(
+      (ti) => (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0),
     );
     const tied = scores12[0] === scores12[1];
     const startReason = tied
@@ -601,8 +713,17 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           <div className="pyr-round-label">Manche 3 — Enchères</div>
           <div className="pyr-scores-recap">
             {[0, 1].map((ti) => (
-              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`} style={{ borderColor: TEAM_COLORS[ti] }}>
-                <div className="pyr-recap-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
+              <div
+                key={ti}
+                className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`}
+                style={{ borderColor: TEAM_COLORS[ti] }}
+              >
+                <div
+                  className="pyr-recap-name"
+                  style={{ color: TEAM_COLORS[ti] }}
+                >
+                  Équipe {ti + 1}
+                </div>
                 <div className="pyr-recap-score">{scores12[ti]} pts</div>
                 <div className="pyr-recap-time">⏱ {times12[ti]}s</div>
               </div>
@@ -618,7 +739,9 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                 <span className="pyr-role-icon">🎤</span>
                 <strong>{players[ti][0]}</strong>
                 <span className="pyr-role-desc">enchérit · indice</span>
-                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>🤔</span>
+                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>
+                  🤔
+                </span>
                 <strong>{players[ti][1]}</strong>
                 <span className="pyr-role-desc">devine</span>
               </div>
@@ -630,7 +753,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
             <p>L'autre peut descendre ou laisser jouer</p>
             <p>L'équipe qui a le dernier mot doit deviner</p>
           </div>
-          <button className="pyr-btn pyr-btn--primary" onClick={() => initRound3(results)}>
+          <button
+            className="pyr-btn pyr-btn--primary"
+            onClick={() => initRound3(results)}
+          >
             C'est parti !
           </button>
         </div>
@@ -651,12 +777,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
         <div className="pyr-word-dots">
           {r3.words.map((w, i) => {
             const isActive = i === r3.wordIdx && r3.subPhase !== "word_result";
-            const dotColor = isActive ? "#ffd700" : w.scoredByTeam !== undefined ? TEAM_COLORS[w.scoredByTeam] : undefined;
+            const dotColor = isActive
+              ? "#ffd700"
+              : w.scoredByTeam !== undefined
+                ? TEAM_COLORS[w.scoredByTeam]
+                : undefined;
             return (
               <div
                 key={i}
                 className={`pyr-dot pyr-dot--${isActive ? "active" : w.state}`}
-                style={dotColor ? { background: dotColor, borderColor: dotColor } : undefined}
+                style={
+                  dotColor
+                    ? { background: dotColor, borderColor: dotColor }
+                    : undefined
+                }
               />
             );
           })}
@@ -688,15 +822,27 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       return (
         <div className="pyr-root">
           <div className="pyr-game">
-            <div className="pyr-round-label">Manche 3 — Mot {r3.wordIdx + 1}/5</div>
+            <div className="pyr-round-label">
+              Manche 3 — Mot {r3.wordIdx + 1}/5
+            </div>
             <div className="pyr-word-card">
               <div className="pyr-word-text">{w3.text}</div>
             </div>
-            <div className="pyr-role-card" style={{ width: "100%", borderColor: TEAM_COLORS[r3.guessingTeam] }}>
+            <div
+              className="pyr-role-card"
+              style={{
+                width: "100%",
+                borderColor: TEAM_COLORS[r3.guessingTeam],
+              }}
+            >
               <div className="pyr-role">
                 <span className="pyr-role-icon">🎤</span>
-                <strong style={{ color: TEAM_COLORS[r3.guessingTeam] }}>{gHinter}</strong>
-                <span className="pyr-role-desc">Éq.{r3.guessingTeam + 1} — donne les indices</span>
+                <strong style={{ color: TEAM_COLORS[r3.guessingTeam] }}>
+                  {gHinter}
+                </strong>
+                <span className="pyr-role-desc">
+                  Éq.{r3.guessingTeam + 1} — donne les indices
+                </span>
               </div>
               <div className="pyr-role-arrow">→</div>
               <div className="pyr-role">
@@ -705,8 +851,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                 <span className="pyr-role-desc">devine</span>
               </div>
             </div>
-            <div className={`pyr-hints-left${r3.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}>
-              {r3.hintsLeft} indice{r3.hintsLeft !== 1 ? "s" : ""} restant{r3.hintsLeft !== 1 ? "s" : ""}
+            <div
+              className={`pyr-hints-left${r3.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}
+            >
+              {r3.hintsLeft} indice{r3.hintsLeft !== 1 ? "s" : ""} restant
+              {r3.hintsLeft !== 1 ? "s" : ""}
             </div>
             <div className="pyr-actions-3">
               <button
@@ -716,10 +865,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               >
                 Indice donné
               </button>
-              <button className="pyr-btn pyr-btn--correct" onClick={() => r3WordResult(true)}>
+              <button
+                className="pyr-btn pyr-btn--correct"
+                onClick={() => r3WordResult(true)}
+              >
                 ✓ Trouvé !
               </button>
-              <button className="pyr-btn pyr-btn--forbidden" onClick={() => r3WordResult(false)}>
+              <button
+                className="pyr-btn pyr-btn--forbidden"
+                onClick={() => r3WordResult(false)}
+              >
                 ✗ Raté
               </button>
             </div>
@@ -735,20 +890,34 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       return (
         <div className="pyr-root">
           <div className="pyr-roundover">
-            <div className="pyr-round-label">Manche 3 — Mot {r3.wordIdx + 1}/5</div>
-            <div className={`pyr-r3-result${r3.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}>
+            <div className="pyr-round-label">
+              Manche 3 — Mot {r3.wordIdx + 1}/5
+            </div>
+            <div
+              className={`pyr-r3-result${r3.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}
+            >
               {r3.lastWordCorrect ? "✓ Trouvé !" : "✗ Pas trouvé"}
             </div>
             <div className="pyr-word-card" style={{ opacity: 0.7 }}>
               <div className="pyr-word-text">{w3.text}</div>
             </div>
             <div className="pyr-r3-scoreboard pyr-r3-scoreboard--big">
-              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[0] }}>
-                Éq.1<br /><strong>{r3.scores[0]}</strong>
+              <span
+                className="pyr-r3-team-big"
+                style={{ color: TEAM_COLORS[0] }}
+              >
+                Éq.1
+                <br />
+                <strong>{r3.scores[0]}</strong>
               </span>
               <span className="pyr-r3-sep">—</span>
-              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[1] }}>
-                Éq.2<br /><strong>{r3.scores[1]}</strong>
+              <span
+                className="pyr-r3-team-big"
+                style={{ color: TEAM_COLORS[1] }}
+              >
+                Éq.2
+                <br />
+                <strong>{r3.scores[1]}</strong>
               </span>
             </div>
             <button className="pyr-btn pyr-btn--primary" onClick={r3NextWord}>
@@ -764,22 +933,36 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   if (phase === "round4_ready") {
     const r3Scores = r3?.scores ?? [0, 0];
     const startTeam = r3 ? 1 - r3.wordInitiator : 0; // Opposite of the team that started R3
-    const scores123 = [0, 1].map((ti) =>
-      (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti]
+    const scores123 = [0, 1].map(
+      (ti) =>
+        (results[ti][0]?.score ?? 0) +
+        (results[ti][1]?.score ?? 0) +
+        r3Scores[ti],
     );
-    const times12 = [0, 1].map((ti) =>
-      (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
+    const times12 = [0, 1].map(
+      (ti) => (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0),
     );
     const startReason = `N'a pas ouvert la manche 3`;
 
     return (
       <div className="pyr-root">
         <div className="pyr-setup">
-          <div className="pyr-round-label">Manche 4 — Enchères (rôles inversés)</div>
+          <div className="pyr-round-label">
+            Manche 4 — Enchères (rôles inversés)
+          </div>
           <div className="pyr-scores-recap">
             {[0, 1].map((ti) => (
-              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`} style={{ borderColor: TEAM_COLORS[ti] }}>
-                <div className="pyr-recap-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
+              <div
+                key={ti}
+                className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`}
+                style={{ borderColor: TEAM_COLORS[ti] }}
+              >
+                <div
+                  className="pyr-recap-name"
+                  style={{ color: TEAM_COLORS[ti] }}
+                >
+                  Équipe {ti + 1}
+                </div>
                 <div className="pyr-recap-score">{scores123[ti]} pts</div>
                 <div className="pyr-recap-time">⏱ {times12[ti]}s</div>
               </div>
@@ -795,7 +978,9 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                 <span className="pyr-role-icon">🎤</span>
                 <strong>{players[ti][1]}</strong>
                 <span className="pyr-role-desc">enchérit · indice</span>
-                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>🤔</span>
+                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>
+                  🤔
+                </span>
                 <strong>{players[ti][0]}</strong>
                 <span className="pyr-role-desc">devine</span>
               </div>
@@ -807,7 +992,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
             <p>L'autre peut descendre ou laisser jouer</p>
             <p>L'équipe qui a le dernier mot doit deviner</p>
           </div>
-          <button className="pyr-btn pyr-btn--primary" onClick={() => initRound4()}>
+          <button
+            className="pyr-btn pyr-btn--primary"
+            onClick={() => initRound4()}
+          >
             C'est parti !
           </button>
         </div>
@@ -829,12 +1017,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
         <div className="pyr-word-dots">
           {r4.words.map((w, i) => {
             const isActive = i === r4.wordIdx && r4.subPhase !== "word_result";
-            const dotColor = isActive ? "#ffd700" : w.scoredByTeam !== undefined ? TEAM_COLORS[w.scoredByTeam] : undefined;
+            const dotColor = isActive
+              ? "#ffd700"
+              : w.scoredByTeam !== undefined
+                ? TEAM_COLORS[w.scoredByTeam]
+                : undefined;
             return (
               <div
                 key={i}
                 className={`pyr-dot pyr-dot--${isActive ? "active" : w.state}`}
-                style={dotColor ? { background: dotColor, borderColor: dotColor } : undefined}
+                style={
+                  dotColor
+                    ? { background: dotColor, borderColor: dotColor }
+                    : undefined
+                }
               />
             );
           })}
@@ -866,15 +1062,27 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       return (
         <div className="pyr-root">
           <div className="pyr-game">
-            <div className="pyr-round-label">Manche 4 — Mot {r4.wordIdx + 1}/5</div>
+            <div className="pyr-round-label">
+              Manche 4 — Mot {r4.wordIdx + 1}/5
+            </div>
             <div className="pyr-word-card">
               <div className="pyr-word-text">{w4.text}</div>
             </div>
-            <div className="pyr-role-card" style={{ width: "100%", borderColor: TEAM_COLORS[r4.guessingTeam] }}>
+            <div
+              className="pyr-role-card"
+              style={{
+                width: "100%",
+                borderColor: TEAM_COLORS[r4.guessingTeam],
+              }}
+            >
               <div className="pyr-role">
                 <span className="pyr-role-icon">🎤</span>
-                <strong style={{ color: TEAM_COLORS[r4.guessingTeam] }}>{gHinter}</strong>
-                <span className="pyr-role-desc">Éq.{r4.guessingTeam + 1} — donne les indices</span>
+                <strong style={{ color: TEAM_COLORS[r4.guessingTeam] }}>
+                  {gHinter}
+                </strong>
+                <span className="pyr-role-desc">
+                  Éq.{r4.guessingTeam + 1} — donne les indices
+                </span>
               </div>
               <div className="pyr-role-arrow">→</div>
               <div className="pyr-role">
@@ -883,8 +1091,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                 <span className="pyr-role-desc">devine</span>
               </div>
             </div>
-            <div className={`pyr-hints-left${r4.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}>
-              {r4.hintsLeft} indice{r4.hintsLeft !== 1 ? "s" : ""} restant{r4.hintsLeft !== 1 ? "s" : ""}
+            <div
+              className={`pyr-hints-left${r4.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}
+            >
+              {r4.hintsLeft} indice{r4.hintsLeft !== 1 ? "s" : ""} restant
+              {r4.hintsLeft !== 1 ? "s" : ""}
             </div>
             <div className="pyr-actions-3">
               <button
@@ -894,10 +1105,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               >
                 Indice donné
               </button>
-              <button className="pyr-btn pyr-btn--correct" onClick={() => r4WordResult(true)}>
+              <button
+                className="pyr-btn pyr-btn--correct"
+                onClick={() => r4WordResult(true)}
+              >
                 ✓ Trouvé !
               </button>
-              <button className="pyr-btn pyr-btn--forbidden" onClick={() => r4WordResult(false)}>
+              <button
+                className="pyr-btn pyr-btn--forbidden"
+                onClick={() => r4WordResult(false)}
+              >
                 ✗ Raté
               </button>
             </div>
@@ -913,20 +1130,34 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       return (
         <div className="pyr-root">
           <div className="pyr-roundover">
-            <div className="pyr-round-label">Manche 4 — Mot {r4.wordIdx + 1}/5</div>
-            <div className={`pyr-r3-result${r4.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}>
+            <div className="pyr-round-label">
+              Manche 4 — Mot {r4.wordIdx + 1}/5
+            </div>
+            <div
+              className={`pyr-r3-result${r4.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}
+            >
               {r4.lastWordCorrect ? "✓ Trouvé !" : "✗ Pas trouvé"}
             </div>
             <div className="pyr-word-card" style={{ opacity: 0.7 }}>
               <div className="pyr-word-text">{w4.text}</div>
             </div>
             <div className="pyr-r3-scoreboard pyr-r3-scoreboard--big">
-              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[0] }}>
-                Éq.1<br /><strong>{r4.scores[0]}</strong>
+              <span
+                className="pyr-r3-team-big"
+                style={{ color: TEAM_COLORS[0] }}
+              >
+                Éq.1
+                <br />
+                <strong>{r4.scores[0]}</strong>
               </span>
               <span className="pyr-r3-sep">—</span>
-              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[1] }}>
-                Éq.2<br /><strong>{r4.scores[1]}</strong>
+              <span
+                className="pyr-r3-team-big"
+                style={{ color: TEAM_COLORS[1] }}
+              >
+                Éq.2
+                <br />
+                <strong>{r4.scores[1]}</strong>
               </span>
             </div>
             <button className="pyr-btn pyr-btn--primary" onClick={r4NextWord}>
@@ -939,18 +1170,26 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   }
   const r3Scores = r3?.scores ?? [0, 0];
   const r4Scores = r4?.scores ?? [0, 0];
-  const totals = [0, 1].map((ti) =>
-    (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti] + r4Scores[ti]
+  const totals = [0, 1].map(
+    (ti) =>
+      (results[ti][0]?.score ?? 0) +
+      (results[ti][1]?.score ?? 0) +
+      r3Scores[ti] +
+      r4Scores[ti],
   );
-  const totalTimes = [0, 1].map((ti) =>
-    (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
+  const totalTimes = [0, 1].map(
+    (ti) => (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0),
   );
   const winner =
     totals[0] !== totals[1]
-      ? totals[0] > totals[1] ? 0 : 1
+      ? totals[0] > totals[1]
+        ? 0
+        : 1
       : totalTimes[0] !== totalTimes[1]
-      ? totalTimes[0] < totalTimes[1] ? 0 : 1
-      : -1;
+        ? totalTimes[0] < totalTimes[1]
+          ? 0
+          : 1
+        : -1;
 
   return (
     <div className="pyr-root">
@@ -964,7 +1203,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               style={{ borderColor: TEAM_COLORS[ti] }}
             >
               {winner === ti && <div className="pyr-trophy">🏆</div>}
-              <div className="pyr-final-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
+              <div
+                className="pyr-final-name"
+                style={{ color: TEAM_COLORS[ti] }}
+              >
+                Équipe {ti + 1}
+              </div>
               <div className="pyr-final-score">{totals[ti]} pts</div>
               <div className="pyr-final-time">⏱ {totalTimes[ti]}s</div>
               <div className="pyr-final-breakdown">
@@ -975,9 +1219,13 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                     return (
                       <div key={ri} className="pyr-final-row">
                         <span className="pyr-final-round">M{ri + 1}</span>
-                        <span className="pyr-final-players">{h} → {g}</span>
+                        <span className="pyr-final-players">
+                          {h} → {g}
+                        </span>
                         <span className="pyr-final-pts">{r?.score ?? 0}pt</span>
-                        <span className="pyr-final-rowtime">{r?.timeUsed ?? 0}s</span>
+                        <span className="pyr-final-rowtime">
+                          {r?.timeUsed ?? 0}s
+                        </span>
                       </div>
                     );
                   } else if (ri === 2) {
@@ -992,7 +1240,9 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                     return (
                       <div key={ri} className="pyr-final-row">
                         <span className="pyr-final-round">M4</span>
-                        <span className="pyr-final-players">Enchères (inv.)</span>
+                        <span className="pyr-final-players">
+                          Enchères (inv.)
+                        </span>
                         <span className="pyr-final-pts">{r4Scores[ti]}pt</span>
                       </div>
                     );
