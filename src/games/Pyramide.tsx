@@ -4,6 +4,7 @@ import "./Pyramide.css";
 
 const TIMER_SECONDS = 30;
 const WORDS_PER_ROUND = 5;
+const TEAM_COLORS = ["#3b82f6", "#f97316"] as const; // blue, orange
 
 type WordState = "pending" | "correct" | "eliminated" | "failed";
 
@@ -11,6 +12,7 @@ interface GameWord {
   text: string;
   theme: string;
   state: WordState;
+  scoredByTeam?: number; // R3 only: which team got the point
 }
 
 interface TeamRound {
@@ -85,9 +87,10 @@ function BiddingView({
             <button
               key={ti}
               className={`pyr-bid-team-btn${selectedTeam === ti ? " pyr-bid-team-btn--selected" : ""}`}
+              style={{ borderColor: selectedTeam === ti ? TEAM_COLORS[ti] : undefined }}
               onClick={() => setSelectedTeam(ti)}
             >
-              <span className="pyr-bid-team-name">Équipe {ti + 1}</span>
+              <span className="pyr-bid-team-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</span>
               <span className="pyr-bid-team-players">{players[ti][0]} → {players[ti][1]}</span>
             </button>
           ))}
@@ -286,12 +289,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   function r3WordResult(correct: boolean) {
     if (!r3) return;
+    const pointTeam = correct ? r3.guessingTeam : 1 - r3.guessingTeam;
     const newScores: [number, number] = [...r3.scores] as [number, number];
-    if (correct) newScores[r3.guessingTeam]++;
-    else newScores[1 - r3.guessingTeam]++;
+    newScores[pointTeam]++;
     const newWords = r3.words.map((w, i) =>
       i === r3.wordIdx
-        ? { ...w, state: (correct ? "correct" : "failed") as WordState }
+        ? { ...w, state: (correct ? "correct" : "failed") as WordState, scoredByTeam: pointTeam }
         : w
     );
     setR3({ ...r3, words: newWords, scores: newScores, lastWordCorrect: correct, subPhase: "word_result" });
@@ -342,8 +345,8 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           <div className="pyr-logo">🔺</div>
           <h1 className="pyr-title">Pyramide</h1>
           {[0, 1].map((ti) => (
-            <div key={ti} className="pyr-team-inputs">
-              <div className="pyr-team-label">Équipe {ti + 1}</div>
+            <div key={ti} className="pyr-team-inputs" style={{ borderColor: TEAM_COLORS[ti] }}>
+              <div className="pyr-team-label" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
               {[0, 1].map((pi) => (
                 <input
                   key={pi}
@@ -383,8 +386,8 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     return (
       <div className="pyr-root">
         <div className="pyr-setup">
-          <div className="pyr-round-label">Manche {currentRound} — Équipe {currentTeam + 1}</div>
-          <div className="pyr-role-card">
+          <div className="pyr-round-label" style={{ color: TEAM_COLORS[currentTeam] }}>Manche {currentRound} — Équipe {currentTeam + 1}</div>
+          <div className="pyr-role-card" style={{ borderColor: TEAM_COLORS[currentTeam] }}>
             <div className="pyr-role">
               <span className="pyr-role-icon">🎤</span>
               <strong>{hinter}</strong>
@@ -480,7 +483,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     return (
       <div className="pyr-root">
         <div className="pyr-roundover">
-          <div className="pyr-round-label">Manche {currentRound} — Équipe {currentTeam + 1}</div>
+          <div className="pyr-round-label" style={{ color: TEAM_COLORS[currentTeam] }}>Manche {currentRound} — Équipe {currentTeam + 1}</div>
           <div className="pyr-score-big">
             {r.score}<span className="pyr-score-denom">/5</span>
           </div>
@@ -524,8 +527,8 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           <div className="pyr-round-label">Manche 3 — Enchères</div>
           <div className="pyr-scores-recap">
             {[0, 1].map((ti) => (
-              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`}>
-                <div className="pyr-recap-name">Équipe {ti + 1}</div>
+              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`} style={{ borderColor: TEAM_COLORS[ti] }}>
+                <div className="pyr-recap-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
                 <div className="pyr-recap-score">{scores12[ti]} pts</div>
                 <div className="pyr-recap-time">⏱ {times12[ti]}s</div>
               </div>
@@ -568,15 +571,25 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     // Score dots for progress
     const scoreDots = (
       <div className="pyr-r3-scoreboard">
-        <span className="pyr-r3-team">Éq.1 <strong>{r3.scores[0]}</strong></span>
+        <span className="pyr-r3-team" style={{ color: TEAM_COLORS[0] }}>
+          Éq.1 <strong>{r3.scores[0]}</strong>
+        </span>
         <div className="pyr-word-dots">
-          {r3.words.map((w, i) => (
-            <div key={i} className={`pyr-dot pyr-dot--${
-              i === r3.wordIdx && r3.subPhase !== "word_result" ? "active" : w.state
-            }`} />
-          ))}
+          {r3.words.map((w, i) => {
+            const isActive = i === r3.wordIdx && r3.subPhase !== "word_result";
+            const dotColor = isActive ? "#ffd700" : w.scoredByTeam !== undefined ? TEAM_COLORS[w.scoredByTeam] : undefined;
+            return (
+              <div
+                key={i}
+                className={`pyr-dot pyr-dot--${isActive ? "active" : w.state}`}
+                style={dotColor ? { background: dotColor, borderColor: dotColor } : undefined}
+              />
+            );
+          })}
         </div>
-        <span className="pyr-r3-team"><strong>{r3.scores[1]}</strong> Éq.2</span>
+        <span className="pyr-r3-team" style={{ color: TEAM_COLORS[1] }}>
+          <strong>{r3.scores[1]}</strong> Éq.2
+        </span>
       </div>
     );
 
@@ -605,10 +618,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
             <div className="pyr-word-card">
               <div className="pyr-word-text">{w3.text}</div>
             </div>
-            <div className="pyr-role-card" style={{ width: "100%" }}>
+            <div className="pyr-role-card" style={{ width: "100%", borderColor: TEAM_COLORS[r3.guessingTeam] }}>
               <div className="pyr-role">
                 <span className="pyr-role-icon">🎤</span>
-                <strong>{gHinter}</strong>
+                <strong style={{ color: TEAM_COLORS[r3.guessingTeam] }}>{gHinter}</strong>
                 <span className="pyr-role-desc">Éq.{r3.guessingTeam + 1} — donne les indices</span>
               </div>
               <div className="pyr-role-arrow">→</div>
@@ -656,9 +669,13 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               <div className="pyr-word-text">{w3.text}</div>
             </div>
             <div className="pyr-r3-scoreboard pyr-r3-scoreboard--big">
-              <span className="pyr-r3-team-big">Éq.1<br /><strong>{r3.scores[0]}</strong></span>
+              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[0] }}>
+                Éq.1<br /><strong>{r3.scores[0]}</strong>
+              </span>
               <span className="pyr-r3-sep">—</span>
-              <span className="pyr-r3-team-big">Éq.2<br /><strong>{r3.scores[1]}</strong></span>
+              <span className="pyr-r3-team-big" style={{ color: TEAM_COLORS[1] }}>
+                Éq.2<br /><strong>{r3.scores[1]}</strong>
+              </span>
             </div>
             <button className="pyr-btn pyr-btn--primary" onClick={r3NextWord}>
               {isLast ? "Résultats finaux" : `Mot ${r3.wordIdx + 2} →`}
@@ -693,9 +710,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
             <div
               key={ti}
               className={`pyr-final-team${winner === ti ? " pyr-final-team--winner" : ""}`}
+              style={{ borderColor: TEAM_COLORS[ti] }}
             >
               {winner === ti && <div className="pyr-trophy">🏆</div>}
-              <div className="pyr-final-name">Équipe {ti + 1}</div>
+              <div className="pyr-final-name" style={{ color: TEAM_COLORS[ti] }}>Équipe {ti + 1}</div>
               <div className="pyr-final-score">{totals[ti]} pts</div>
               <div className="pyr-final-time">⏱ {totalTimes[ti]}s</div>
               <div className="pyr-final-breakdown">
