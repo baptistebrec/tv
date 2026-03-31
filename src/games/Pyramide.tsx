@@ -4,6 +4,7 @@ import "./Pyramide.css";
 
 const TIMER_SECONDS = 30;
 const WORDS_PER_ROUND = 5;
+const FINALE_TIMER_SECONDS = 90;
 const TEAM_COLORS = ["#3b82f6", "#f97316"] as const; // blue, orange
 
 type WordState = "pending" | "correct" | "eliminated" | "failed";
@@ -49,6 +50,40 @@ interface R4State {
   lastWordCorrect: boolean | null;
 }
 
+// ── Finale ───────────────────────────────────────────────────────────────────
+
+const FINALE_LEVELS = [
+  { level: 1, prize: 1000, wordCount: 9 },
+  { level: 2, prize: 2500, wordCount: 8 },
+  { level: 3, prize: 5000, wordCount: 7 },
+  { level: 4, prize: 10000, wordCount: 6 },
+  { level: 5, prize: 20000, wordCount: 5 },
+] as const;
+
+const FINALE_HINTS_PER_WORD = 3;
+const FINALE_WORDS_NEEDED = 5;
+const FINALE_SAFETY_LEVEL = 2;
+
+type FinaleWordStatus = "pending" | "correct" | "eliminated";
+
+interface FinaleWord {
+  text: string;
+  theme: string;
+  status: FinaleWordStatus;
+}
+
+interface FinaleState {
+  winnerTeam: number;
+  level: number;
+  words: FinaleWord[];
+  currentWordIdx: number;
+  foundCount: number;
+  hintsLeft: number;
+  safetyNetAmount: number;
+  wonAmount: number;
+  endReason: "stopped" | "failed" | "grand_win" | null;
+}
+
 type Phase =
   | "setup"
   | "ready"
@@ -58,7 +93,11 @@ type Phase =
   | "round3"
   | "round4_ready"
   | "round4"
-  | "results";
+  | "results"
+  | "finale_intro"
+  | "finale_playing"
+  | "finale_level_success"
+  | "finale_end";
 
 function pickWords(): GameWord[] {
   return [...MYSTERY_WORDS]
@@ -181,8 +220,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   const [r3, setR3] = useState<R3State | null>(null);
   const [r4, setR4] = useState<R4State | null>(null);
+  const [finaleState, setFinaleState] = useState<FinaleState | null>(null);
+
+  const [finaleTimeLeft, setFinaleTimeLeft] = useState(FINALE_TIMER_SECONDS);
 
   const timerRef = useRef<number | null>(null);
+  const finaleTimerRef = useRef<number | null>(null);
   const roundEndedRef = useRef(false);
   const timeLeftRef = useRef(TIMER_SECONDS);
   const wordsRef = useRef<GameWord[]>([]);
@@ -196,6 +239,13 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
+    }
+  }, []);
+
+  const stopFinaleTimer = useCallback(() => {
+    if (finaleTimerRef.current) {
+      clearInterval(finaleTimerRef.current);
+      finaleTimerRef.current = null;
     }
   }, []);
 
@@ -215,6 +265,23 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (phase === "playing" && timeLeft === 0) endRound();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
+
+  useEffect(() => {
+    if (phase !== "finale_playing") return;
+    setFinaleTimeLeft(FINALE_TIMER_SECONDS);
+    finaleTimerRef.current = window.setInterval(() => {
+      setFinaleTimeLeft((t) => (t <= 1 ? 0 : t - 1));
+    }, 1000);
+    return stopFinaleTimer;
+  }, [phase, stopFinaleTimer]);
+
+  useEffect(() => {
+    if (phase !== "finale_playing" || finaleTimeLeft > 0) return;
+    stopFinaleTimer();
+    setFinaleState((prev) => prev ? { ...prev, wonAmount: prev.safetyNetAmount, endReason: "failed" } : prev);
+    setPhase("finale_end");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finaleTimeLeft]);
 
   // ── Rounds 1 & 2 logic ────────────────────────────────────────────────────
 
@@ -444,6 +511,104 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       hintsLeft: 0,
       lastWordCorrect: null,
     });
+  }
+
+  // ── Finale logic ──────────────────────────────────────────────────────────
+
+  function pickFinaleWords(n: number): FinaleWord[] {
+    return [...MYSTERY_WORDS]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, n)
+      .map((w) => ({ text: w.text, theme: w.theme, status: "pending" as FinaleWordStatus }));
+  }
+
+  function startFinale(winnerTeam: number) {
+    const cfg = FINALE_LEVELS[0];
+    setFinaleState({
+      winnerTeam,
+      level: 1,
+      words: pickFinaleWords(cfg.wordCount),
+      currentWordIdx: 0,
+      foundCount: 0,
+      hintsLeft: FINALE_HINTS_PER_WORD,
+      safetyNetAmount: 0,
+      wonAmount: cfg.prize,
+      endReason: null,
+    });
+    setPhase("finale_intro");
+  }
+
+  function finaleHintGiven() {
+    if (!finaleState || finaleState.hintsLeft <= 0) return;
+    setFinaleState({ ...finaleState, hintsLeft: finaleState.hintsLeft - 1 });
+  }
+
+  function finaleWordResolved(correct: boolean) {
+    if (!finaleState) return;
+    const newWords = finaleState.words.map((w, i) =>
+      i === finaleState.currentWordIdx
+        ? { ...w, status: (correct ? "correct" : "eliminated") as FinaleWordStatus }
+        : w
+    );
+    const newFoundCount = correct ? finaleState.foundCount + 1 : finaleState.foundCount;
+    const remainingPending = newWords.filter((w) => w.status === "pending").length;
+
+    if (newFoundCount >= FINALE_WORDS_NEEDED) {
+      stopFinaleTimer();
+      const newSafetyNet =
+        finaleState.level === FINALE_SAFETY_LEVEL
+          ? FINALE_LEVELS[FINALE_SAFETY_LEVEL - 1].prize
+          : finaleState.safetyNetAmount;
+      setFinaleState({ ...finaleState, words: newWords, foundCount: newFoundCount, safetyNetAmount: newSafetyNet });
+      setPhase("finale_level_success");
+      return;
+    }
+
+    if (newFoundCount + remainingPending < FINALE_WORDS_NEEDED) {
+      stopFinaleTimer();
+      setFinaleState({
+        ...finaleState,
+        words: newWords,
+        foundCount: newFoundCount,
+        wonAmount: finaleState.safetyNetAmount,
+        endReason: "failed",
+      });
+      setPhase("finale_end");
+      return;
+    }
+
+    const nextIdx = newWords.findIndex((w, i) => i > finaleState.currentWordIdx && w.status === "pending");
+    setFinaleState({
+      ...finaleState,
+      words: newWords,
+      foundCount: newFoundCount,
+      currentWordIdx: nextIdx >= 0 ? nextIdx : finaleState.currentWordIdx + 1,
+      hintsLeft: FINALE_HINTS_PER_WORD,
+    });
+  }
+
+  function finaleStop() {
+    if (!finaleState) return;
+    const isGrandWin = finaleState.level === 5;
+    setFinaleState({ ...finaleState, endReason: isGrandWin ? "grand_win" : "stopped" });
+    setPhase("finale_end");
+  }
+
+  function finaleContinue() {
+    if (!finaleState) return;
+    const nextLevel = finaleState.level + 1;
+    const cfg = FINALE_LEVELS.find((l) => l.level === nextLevel)!;
+    setFinaleState({
+      ...finaleState,
+      level: nextLevel,
+      words: pickFinaleWords(cfg.wordCount),
+      currentWordIdx: 0,
+      foundCount: 0,
+      hintsLeft: FINALE_HINTS_PER_WORD,
+      wonAmount: cfg.prize,
+      endReason: null,
+    });
+    setPhase("finale_playing");
   }
 
   // Round 1: player[0] hints, player[1] guesses
@@ -1168,6 +1333,253 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       );
     }
   }
+
+  // ── FINALE HELPERS ─────────────────────────────────────────────────────────
+  const renderFinaleLadder = (currentLevel: number) => (
+    <div className="pyr-finale-ladder">
+      <div className="pyr-finale-ladder-title">Paliers</div>
+      {[...FINALE_LEVELS].reverse().map((l) => {
+        const isActive = l.level === currentLevel;
+        const isDone = l.level < currentLevel;
+        const isSafety = l.level === FINALE_SAFETY_LEVEL;
+        return (
+          <div
+            key={l.level}
+            className={[
+              "pyr-finale-ladder-row",
+              isActive ? "pyr-finale-ladder-row--active" : "",
+              isDone ? "pyr-finale-ladder-row--done" : "",
+              isSafety ? "pyr-finale-ladder-row--safety" : "",
+            ].filter(Boolean).join(" ")}
+          >
+            <span className="pyr-finale-ladder-level">Niv.{l.level}{isSafety ? " 🛡" : ""}</span>
+            <span className="pyr-finale-ladder-prize">{l.prize.toLocaleString("fr-FR")} €</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // ── FINALE INTRO ───────────────────────────────────────────────────────────
+  if (phase === "finale_intro" && finaleState) {
+    const { winnerTeam } = finaleState;
+    const finaleHinter = players[winnerTeam][0];
+    const finaleGuesser = players[winnerTeam][1];
+    return (
+      <div className="pyr-root">
+        <div className="pyr-setup">
+          <div className="pyr-round-label" style={{ color: TEAM_COLORS[winnerTeam] }}>
+            La Finale — Équipe {winnerTeam + 1}
+          </div>
+          <div className="pyr-role-card" style={{ borderColor: TEAM_COLORS[winnerTeam] }}>
+            <div className="pyr-role">
+              <span className="pyr-role-icon">🎤</span>
+              <strong>{finaleHinter}</strong>
+              <span className="pyr-role-desc">donne les indices</span>
+            </div>
+            <div className="pyr-role-arrow">→</div>
+            <div className="pyr-role">
+              <span className="pyr-role-icon">🤔</span>
+              <strong>{finaleGuesser}</strong>
+              <span className="pyr-role-desc">devine</span>
+            </div>
+          </div>
+          <table className="pyr-finale-table">
+            <thead>
+              <tr>
+                <th>Niveau</th>
+                <th>Somme en jeu</th>
+                <th>Mots dispo.</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...FINALE_LEVELS].reverse().map((l) => (
+                <tr key={l.level} className={l.level === FINALE_SAFETY_LEVEL ? "pyr-finale-table-safety" : ""}>
+                  <td>{l.level}{l.level === FINALE_SAFETY_LEVEL ? " 🛡" : ""}</td>
+                  <td>{l.prize.toLocaleString("fr-FR")} €</td>
+                  <td>{l.wordCount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pyr-rules-mini">
+            <p>Trouver 5 mots pour passer au niveau suivant</p>
+            <p>Max {FINALE_HINTS_PER_WORD} indices par mot · Passer élimine le mot</p>
+            <p>Niveau 2 🛡 est votre filet de sécurité</p>
+          </div>
+          <button className="pyr-btn pyr-btn--primary" onClick={() => setPhase("finale_playing")}>
+            C'est parti !
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FINALE PLAYING ─────────────────────────────────────────────────────────
+  if (phase === "finale_playing" && finaleState) {
+    const { winnerTeam, level, words, currentWordIdx, foundCount, hintsLeft } = finaleState;
+    const currentWord = words[currentWordIdx];
+    const levelCfg = FINALE_LEVELS.find((l) => l.level === level)!;
+    const eliminated = words.filter((w) => w.status === "eliminated").length;
+    const finaleHinter = players[winnerTeam][0];
+    const finaleGuesser = players[winnerTeam][1];
+    return (
+      <div className="pyr-root">
+        <div className="pyr-finale-layout">
+          {renderFinaleLadder(level)}
+          <div className="pyr-game">
+            <div className="pyr-header">
+              <div className="pyr-round-label" style={{ color: TEAM_COLORS[winnerTeam], margin: 0 }}>
+                Finale · Niv.{level} — {levelCfg.prize.toLocaleString("fr-FR")} €
+              </div>
+              <span className={`pyr-timer${finaleTimeLeft <= 20 ? " pyr-timer--urgent" : ""}`}>
+                {finaleTimeLeft}s
+              </span>
+            </div>
+            <div className="pyr-players-sm">
+              <span>🎤 {finaleHinter}</span>
+              <span className="pyr-arrow-sm">→</span>
+              <span>🤔 {finaleGuesser}</span>
+            </div>
+            <div className="pyr-word-card">
+              <div className="pyr-word-text">{currentWord.text}</div>
+            </div>
+            <div className="pyr-finale-hints">
+              {Array.from({ length: FINALE_HINTS_PER_WORD }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`pyr-finale-hint-dot${i < FINALE_HINTS_PER_WORD - hintsLeft ? " pyr-finale-hint-dot--used" : ""}`}
+                />
+              ))}
+            </div>
+            <div className="pyr-counters">
+              <span className="pyr-counter pyr-counter--correct">✓ {foundCount}/{FINALE_WORDS_NEEDED}</span>
+              <span className="pyr-counter pyr-counter--pending">
+                ⏳ {words.filter((w) => w.status === "pending").length}
+              </span>
+              <span className="pyr-counter pyr-counter--elim">🚫 {eliminated}</span>
+            </div>
+            <div className="pyr-word-dots">
+              {words.map((w, i) => (
+                <div
+                  key={i}
+                  className={`pyr-dot pyr-dot--${i === currentWordIdx ? "active" : w.status}`}
+                />
+              ))}
+            </div>
+            <div className="pyr-actions-3">
+              <button
+                className="pyr-btn pyr-btn--pass"
+                onClick={() => finaleWordResolved(false)}
+              >
+                🚫 Passer
+              </button>
+              <button
+                className="pyr-btn pyr-btn--pass"
+                onClick={finaleHintGiven}
+                disabled={hintsLeft === 0}
+              >
+                Indice donné ({hintsLeft})
+              </button>
+              <button
+                className="pyr-btn pyr-btn--correct"
+                onClick={() => finaleWordResolved(true)}
+              >
+                ✓ Trouvé !
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FINALE LEVEL SUCCESS ───────────────────────────────────────────────────
+  if (phase === "finale_level_success" && finaleState) {
+    const { level, wonAmount, safetyNetAmount, words } = finaleState;
+    const isTop = level === FINALE_LEVELS.length;
+    return (
+      <div className="pyr-root">
+        <div className="pyr-finale-layout">
+          {renderFinaleLadder(level)}
+          <div className="pyr-roundover">
+            <div className="pyr-round-label">
+              Niveau {level} réussi !
+            </div>
+            <div className="pyr-finale-prize-display">
+              {wonAmount.toLocaleString("fr-FR")} €
+            </div>
+            <div className="pyr-word-list">
+              {words.map((w, i) => (
+                <div key={i} className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}>
+                  <span className="pyr-word-row-icon">
+                    {w.status === "correct" ? "✓" : w.status === "eliminated" ? "🚫" : "—"}
+                  </span>
+                  <span>{w.text}</span>
+                </div>
+              ))}
+            </div>
+            {safetyNetAmount > 0 && (
+              <div className="pyr-finale-safety-active">🛡 Filet de sécurité : {safetyNetAmount.toLocaleString("fr-FR")} €</div>
+            )}
+            {isTop ? (
+              <button className="pyr-btn pyr-btn--correct" onClick={finaleStop}>
+                Terminer — {wonAmount.toLocaleString("fr-FR")} € !
+              </button>
+            ) : (
+              <div className="pyr-finale-decision">
+                <button className="pyr-btn pyr-btn--forbidden" onClick={finaleStop}>
+                  Arrêter — garder {wonAmount.toLocaleString("fr-FR")} €
+                </button>
+                <button className="pyr-btn pyr-btn--correct" onClick={finaleContinue}>
+                  Continuer → Niveau {level + 1}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FINALE END ─────────────────────────────────────────────────────────────
+  if (phase === "finale_end" && finaleState) {
+    const { level, endReason, wonAmount, words } = finaleState;
+    const isWin = endReason !== "failed";
+    return (
+      <div className="pyr-root">
+        <div className="pyr-finale-layout">
+          {renderFinaleLadder(level)}
+          <div className="pyr-final">
+            {endReason === "grand_win" && <div className="pyr-trophy">🏆</div>}
+            <h1>{endReason === "grand_win" ? "Bravo !" : isWin ? "Félicitations !" : "Dommage !"}</h1>
+            <div className="pyr-finale-prize-display" style={{ color: isWin ? "#22c55e" : "#ef4444" }}>
+              {wonAmount.toLocaleString("fr-FR")} €
+            </div>
+            {endReason === "failed" && wonAmount === 0 && (
+              <div className="pyr-finale-safety-active" style={{ color: "#ef4444" }}>
+                Vous repartez sans filet.
+              </div>
+            )}
+            <div className="pyr-word-list">
+              {words.map((w, i) => (
+                <div key={i} className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}>
+                  <span className="pyr-word-row-icon">
+                    {w.status === "correct" ? "✓" : w.status === "eliminated" ? "🚫" : "—"}
+                  </span>
+                  <span>{w.text}</span>
+                </div>
+              ))}
+            </div>
+            <button className="pyr-btn pyr-btn--primary" onClick={onBack}>
+              Retour au menu
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const r3Scores = r3?.scores ?? [0, 0];
   const r4Scores = r4?.scores ?? [0, 0];
   const totals = [0, 1].map(
@@ -1255,6 +1667,15 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
         {winner === -1 && <div className="pyr-tie">Égalité parfaite ! 🤝</div>}
         {winner !== -1 && totals[0] === totals[1] && (
           <div className="pyr-tiebreak-note">Départagés au temps !</div>
+        )}
+        {winner !== -1 && (
+          <button
+            className="pyr-btn pyr-btn--correct"
+            style={{ marginTop: "0.5rem" }}
+            onClick={() => startFinale(winner)}
+          >
+            🏆 Jouer la Finale — Équipe {winner + 1}
+          </button>
         )}
         <button className="pyr-btn pyr-btn--primary" onClick={onBack}>
           Retour au menu
