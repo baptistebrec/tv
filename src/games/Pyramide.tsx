@@ -5,7 +5,7 @@ import "./Pyramide.css";
 const TIMER_SECONDS = 30;
 const WORDS_PER_ROUND = 5;
 
-type WordState = "pending" | "correct" | "eliminated";
+type WordState = "pending" | "correct" | "eliminated" | "failed";
 
 interface GameWord {
   text: string;
@@ -19,25 +19,106 @@ interface TeamRound {
   words: GameWord[];
 }
 
-// players[team][0 | 1]
-// Round 1: players[team][0] hints → players[team][1] guesses
-// Round 2: players[team][1] hints → players[team][0] guesses
-type Phase = "setup" | "ready" | "playing" | "roundover" | "results";
+// Round 3: verbal auction resolved by host, then input here
+type R3SubPhase = "bidding" | "guessing" | "word_result";
+
+interface R3State {
+  words: GameWord[];
+  wordIdx: number;
+  wordInitiator: number;   // team that opens bidding for current word
+  subPhase: R3SubPhase;
+  guessingTeam: number;
+  hintsLeft: number;
+  scores: [number, number];
+  lastWordCorrect: boolean | null;
+}
+
+type Phase = "setup" | "ready" | "playing" | "roundover" | "round3_ready" | "round3" | "results";
 
 function pickWords(): GameWord[] {
   return [...MYSTERY_WORDS]
     .sort(() => Math.random() - 0.5)
     .slice(0, WORDS_PER_ROUND)
-    .map((w) => ({ text: w.text, theme: w.theme, state: "pending" }));
+    .map((w) => ({ text: w.text, theme: w.theme, state: "pending" as WordState }));
 }
 
-// Play order: R1-T0, R1-T1, R2-T0, R2-T1
+// Play order for rounds 1 & 2: R1-T0, R1-T1, R2-T0, R2-T1
 const PLAY_ORDER = [
   { round: 1, team: 0 },
   { round: 1, team: 1 },
   { round: 2, team: 0 },
   { round: 2, team: 1 },
 ];
+
+function BiddingView({
+  wordText,
+  wordIdx,
+  wordInitiator,
+  players,
+  scoreDots,
+  onConfirm,
+}: {
+  wordText: string;
+  wordIdx: number;
+  wordInitiator: number;
+  players: string[][];
+  scoreDots: React.ReactNode;
+  onConfirm: (team: number, hints: number) => void;
+}) {
+  const [selectedTeam, setSelectedTeam] = useState<number | null>(null);
+  const [selectedHints, setSelectedHints] = useState<number | null>(null);
+
+  return (
+    <div className="pyr-root">
+      <div className="pyr-game">
+        <div className="pyr-round-label">Manche 3 — Mot {wordIdx + 1}/5</div>
+        <div className="pyr-r3-turn">
+          Équipe {wordInitiator + 1} ouvre les enchères
+        </div>
+        <div className="pyr-word-card">
+          <div className="pyr-word-text">{wordText}</div>
+        </div>
+
+        <div className="pyr-bid-section-label">Quelle équipe joue ?</div>
+        <div className="pyr-bid-team-btns">
+          {[0, 1].map((ti) => (
+            <button
+              key={ti}
+              className={`pyr-bid-team-btn${selectedTeam === ti ? " pyr-bid-team-btn--selected" : ""}`}
+              onClick={() => setSelectedTeam(ti)}
+            >
+              <span className="pyr-bid-team-name">Équipe {ti + 1}</span>
+              <span className="pyr-bid-team-players">{players[ti][0]} → {players[ti][1]}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="pyr-bid-section-label">Nombre d'indices ?</div>
+        <div className="pyr-bid-buttons">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              className={`pyr-bid-btn${selectedHints === n ? " pyr-bid-btn--selected" : ""}`}
+              onClick={() => setSelectedHints(n)}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+
+        <button
+          className="pyr-btn pyr-btn--primary"
+          disabled={selectedTeam === null || selectedHints === null}
+          onClick={() => onConfirm(selectedTeam!, selectedHints!)}
+        >
+          C'est parti !
+        </button>
+
+        {scoreDots}
+      </div>
+    </div>
+  );
+}
 
 export function Pyramide({ onBack }: { onBack: () => void }) {
   const [players, setPlayers] = useState([
@@ -46,18 +127,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   ]);
 
   const [phase, setPhase] = useState<Phase>("setup");
-  const [turnIdx, setTurnIdx] = useState(0); // index into PLAY_ORDER
-  const { round: currentRound, team: currentTeam } = PLAY_ORDER[Math.min(turnIdx, PLAY_ORDER.length - 1)];
+  const [turnIdx, setTurnIdx] = useState(0);
+  const { round: currentRound, team: currentTeam } =
+    PLAY_ORDER[Math.min(turnIdx, PLAY_ORDER.length - 1)];
 
   const [words, setWords] = useState<GameWord[]>([]);
   const [queue, setQueue] = useState<number[]>([]);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
 
-  // results[team][round-1]
   const [results, setResults] = useState<(TeamRound | null)[][]>([
     [null, null],
     [null, null],
   ]);
+
+  const [r3, setR3] = useState<R3State | null>(null);
 
   const timerRef = useRef<number | null>(null);
   const roundEndedRef = useRef(false);
@@ -92,6 +175,8 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (phase === "playing" && timeLeft === 0) endRound();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft]);
+
+  // ── Rounds 1 & 2 logic ────────────────────────────────────────────────────
 
   function startPlaying() {
     const w = pickWords();
@@ -155,18 +240,91 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   function afterRound() {
     const nextTurnIdx = turnIdx + 1;
     if (nextTurnIdx >= PLAY_ORDER.length) {
-      setPhase("results");
+      setPhase("round3_ready");
     } else {
       setTurnIdx(nextTurnIdx);
       setPhase("ready");
     }
   }
 
-  // Role: who hints and who guesses this turn
+  // ── Round 3 logic ──────────────────────────────────────────────────────────
+
+  function getR3StartTeam(res: (TeamRound | null)[][]): number {
+    const s0 = (res[0][0]?.score ?? 0) + (res[0][1]?.score ?? 0);
+    const s1 = (res[1][0]?.score ?? 0) + (res[1][1]?.score ?? 0);
+    if (s0 !== s1) return s0 > s1 ? 0 : 1;
+    const t0 = (res[0][0]?.timeUsed ?? 0) + (res[0][1]?.timeUsed ?? 0);
+    const t1 = (res[1][0]?.timeUsed ?? 0) + (res[1][1]?.timeUsed ?? 0);
+    if (t0 !== t1) return t0 < t1 ? 0 : 1;
+    return 0;
+  }
+
+  function initRound3(res: (TeamRound | null)[][]) {
+    const startTeam = getR3StartTeam(res);
+    setR3({
+      words: pickWords(),
+      wordIdx: 0,
+      wordInitiator: startTeam,
+      subPhase: "bidding",
+      guessingTeam: startTeam,
+      hintsLeft: 0,
+      scores: [0, 0],
+      lastWordCorrect: null,
+    });
+    setPhase("round3");
+  }
+
+  function r3Confirm(team: number, hints: number) {
+    if (!r3) return;
+    setR3({ ...r3, guessingTeam: team, hintsLeft: hints, subPhase: "guessing" });
+  }
+
+  function r3HintGiven() {
+    if (!r3 || r3.hintsLeft <= 0) return;
+    setR3({ ...r3, hintsLeft: r3.hintsLeft - 1 });
+  }
+
+  function r3WordResult(correct: boolean) {
+    if (!r3) return;
+    const newScores: [number, number] = [...r3.scores] as [number, number];
+    if (correct) newScores[r3.guessingTeam]++;
+    else newScores[1 - r3.guessingTeam]++;
+    const newWords = r3.words.map((w, i) =>
+      i === r3.wordIdx
+        ? { ...w, state: (correct ? "correct" : "failed") as WordState }
+        : w
+    );
+    setR3({ ...r3, words: newWords, scores: newScores, lastWordCorrect: correct, subPhase: "word_result" });
+  }
+
+  function r3NextWord() {
+    if (!r3) return;
+    const nextIdx = r3.wordIdx + 1;
+    if (nextIdx >= WORDS_PER_ROUND) {
+      setPhase("results");
+      return;
+    }
+    const nextInit = 1 - r3.wordInitiator;
+    setR3({
+      ...r3,
+      wordIdx: nextIdx,
+      wordInitiator: nextInit,
+      subPhase: "bidding",
+      guessingTeam: nextInit,
+      hintsLeft: 0,
+      lastWordCorrect: null,
+    });
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+
+  // Round 1: player[0] hints, player[1] guesses
+  // Round 2: player[1] hints, player[0] guesses
+  // Round 3: player[0] hints, player[1] guesses (same as R1)
   function getRoles(team: number, round: number) {
-    return round === 1
-      ? { hinter: players[team][0], guesser: players[team][1] }
-      : { hinter: players[team][1], guesser: players[team][0] };
+    return round === 2
+      ? { hinter: players[team][1], guesser: players[team][0] }
+      : { hinter: players[team][0], guesser: players[team][1] };
   }
 
   const { hinter, guesser } = getRoles(currentTeam, currentRound);
@@ -290,35 +448,20 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           </div>
 
           <div className="pyr-actions-3">
-            <button
-              className="pyr-btn pyr-btn--forbidden"
-              onClick={handleForbidden}
-              disabled={!currentWord}
-            >
+            <button className="pyr-btn pyr-btn--forbidden" onClick={handleForbidden} disabled={!currentWord}>
               🚫 Interdit
             </button>
-            <button
-              className="pyr-btn pyr-btn--pass"
-              onClick={handlePass}
-              disabled={!currentWord || pendingCount <= 1}
-            >
+            <button className="pyr-btn pyr-btn--pass" onClick={handlePass} disabled={!currentWord || pendingCount <= 1}>
               ⏭ Passer
             </button>
-            <button
-              className="pyr-btn pyr-btn--correct"
-              onClick={handleCorrect}
-              disabled={!currentWord}
-            >
+            <button className="pyr-btn pyr-btn--correct" onClick={handleCorrect} disabled={!currentWord}>
               ✓ Trouvé !
             </button>
           </div>
 
           <div className="pyr-word-dots">
             {words.map((w, i) => (
-              <div
-                key={i}
-                className={`pyr-dot pyr-dot--${queue[0] === i ? "active" : w.state}`}
-              />
+              <div key={i} className={`pyr-dot pyr-dot--${queue[0] === i ? "active" : w.state}`} />
             ))}
           </div>
         </div>
@@ -332,7 +475,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     const nextTurn = PLAY_ORDER[turnIdx + 1];
     const nextLabel = nextTurn
       ? `Manche ${nextTurn.round} — Équipe ${nextTurn.team + 1} →`
-      : "Voir les résultats";
+      : "Manche 3 →";
 
     return (
       <div className="pyr-root">
@@ -359,9 +502,177 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     );
   }
 
+  // ── ROUND 3 READY ──────────────────────────────────────────────────────────
+  if (phase === "round3_ready") {
+    const startTeam = getR3StartTeam(results);
+    const scores12 = [0, 1].map((ti) =>
+      (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0)
+    );
+    const times12 = [0, 1].map((ti) =>
+      (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
+    );
+    const tied = scores12[0] === scores12[1];
+    const startReason = tied
+      ? times12[0] === times12[1]
+        ? "Équipe 1 commence (égalité parfaite)"
+        : `Commence car moins de temps utilisé (${times12[startTeam]}s)`
+      : `Commence car meilleur score`;
+
+    return (
+      <div className="pyr-root">
+        <div className="pyr-setup">
+          <div className="pyr-round-label">Manche 3 — Enchères</div>
+          <div className="pyr-scores-recap">
+            {[0, 1].map((ti) => (
+              <div key={ti} className={`pyr-recap-team${ti === startTeam ? " pyr-recap-team--start" : ""}`}>
+                <div className="pyr-recap-name">Équipe {ti + 1}</div>
+                <div className="pyr-recap-score">{scores12[ti]} pts</div>
+                <div className="pyr-recap-time">⏱ {times12[ti]}s</div>
+              </div>
+            ))}
+          </div>
+          <div className="pyr-start-badge">
+            Équipe {startTeam + 1} ouvre les enchères
+            <div className="pyr-start-reason">{startReason}</div>
+          </div>
+          <div className="pyr-role-card">
+            {[0, 1].map((ti) => (
+              <div key={ti} className="pyr-role">
+                <span className="pyr-role-icon">🎤</span>
+                <strong>{players[ti][0]}</strong>
+                <span className="pyr-role-desc">enchérit · indice</span>
+                <span className="pyr-role-icon" style={{ marginTop: "0.5rem" }}>🤔</span>
+                <strong>{players[ti][1]}</strong>
+                <span className="pyr-role-desc">devine</span>
+              </div>
+            ))}
+          </div>
+          <div className="pyr-rules-mini">
+            <p>Le mot est révélé aux deux hinteurs</p>
+            <p>L'équipe qui ouvre annonce N indices</p>
+            <p>L'autre peut descendre ou laisser jouer</p>
+            <p>L'équipe qui a le dernier mot doit deviner</p>
+          </div>
+          <button className="pyr-btn pyr-btn--primary" onClick={() => initRound3(results)}>
+            C'est parti !
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── ROUND 3 ────────────────────────────────────────────────────────────────
+  if (phase === "round3" && r3) {
+    const w3 = r3.words[r3.wordIdx];
+
+    // Score dots for progress
+    const scoreDots = (
+      <div className="pyr-r3-scoreboard">
+        <span className="pyr-r3-team">Éq.1 <strong>{r3.scores[0]}</strong></span>
+        <div className="pyr-word-dots">
+          {r3.words.map((w, i) => (
+            <div key={i} className={`pyr-dot pyr-dot--${
+              i === r3.wordIdx && r3.subPhase !== "word_result" ? "active" : w.state
+            }`} />
+          ))}
+        </div>
+        <span className="pyr-r3-team"><strong>{r3.scores[1]}</strong> Éq.2</span>
+      </div>
+    );
+
+    // ── bidding: pick team + number of hints ───────────────────────────────
+    if (r3.subPhase === "bidding") {
+      return (
+        <BiddingView
+          wordText={w3.text}
+          wordIdx={r3.wordIdx}
+          wordInitiator={r3.wordInitiator}
+          players={players}
+          scoreDots={scoreDots}
+          onConfirm={r3Confirm}
+        />
+      );
+    }
+
+    // ── guessing ────────────────────────────────────────────────────────────
+    if (r3.subPhase === "guessing") {
+      const gHinter = players[r3.guessingTeam][0];
+      const gGuesser = players[r3.guessingTeam][1];
+      return (
+        <div className="pyr-root">
+          <div className="pyr-game">
+            <div className="pyr-round-label">Manche 3 — Mot {r3.wordIdx + 1}/5</div>
+            <div className="pyr-word-card">
+              <div className="pyr-word-text">{w3.text}</div>
+            </div>
+            <div className="pyr-role-card" style={{ width: "100%" }}>
+              <div className="pyr-role">
+                <span className="pyr-role-icon">🎤</span>
+                <strong>{gHinter}</strong>
+                <span className="pyr-role-desc">Éq.{r3.guessingTeam + 1} — donne les indices</span>
+              </div>
+              <div className="pyr-role-arrow">→</div>
+              <div className="pyr-role">
+                <span className="pyr-role-icon">🤔</span>
+                <strong>{gGuesser}</strong>
+                <span className="pyr-role-desc">devine</span>
+              </div>
+            </div>
+            <div className={`pyr-hints-left${r3.hintsLeft === 0 ? " pyr-hints-left--zero" : ""}`}>
+              {r3.hintsLeft} indice{r3.hintsLeft !== 1 ? "s" : ""} restant{r3.hintsLeft !== 1 ? "s" : ""}
+            </div>
+            <div className="pyr-actions-3">
+              <button
+                className="pyr-btn pyr-btn--pass"
+                onClick={r3HintGiven}
+                disabled={r3.hintsLeft === 0}
+              >
+                Indice donné
+              </button>
+              <button className="pyr-btn pyr-btn--correct" onClick={() => r3WordResult(true)}>
+                ✓ Trouvé !
+              </button>
+              <button className="pyr-btn pyr-btn--forbidden" onClick={() => r3WordResult(false)}>
+                ✗ Raté
+              </button>
+            </div>
+            {scoreDots}
+          </div>
+        </div>
+      );
+    }
+
+    // ── word result ─────────────────────────────────────────────────────────
+    if (r3.subPhase === "word_result") {
+      const isLast = r3.wordIdx >= WORDS_PER_ROUND - 1;
+      return (
+        <div className="pyr-root">
+          <div className="pyr-roundover">
+            <div className="pyr-round-label">Manche 3 — Mot {r3.wordIdx + 1}/5</div>
+            <div className={`pyr-r3-result${r3.lastWordCorrect ? " pyr-r3-result--correct" : " pyr-r3-result--failed"}`}>
+              {r3.lastWordCorrect ? "✓ Trouvé !" : "✗ Pas trouvé"}
+            </div>
+            <div className="pyr-word-card" style={{ opacity: 0.7 }}>
+              <div className="pyr-word-text">{w3.text}</div>
+            </div>
+            <div className="pyr-r3-scoreboard pyr-r3-scoreboard--big">
+              <span className="pyr-r3-team-big">Éq.1<br /><strong>{r3.scores[0]}</strong></span>
+              <span className="pyr-r3-sep">—</span>
+              <span className="pyr-r3-team-big">Éq.2<br /><strong>{r3.scores[1]}</strong></span>
+            </div>
+            <button className="pyr-btn pyr-btn--primary" onClick={r3NextWord}>
+              {isLast ? "Résultats finaux" : `Mot ${r3.wordIdx + 2} →`}
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
   // ── RESULTS ────────────────────────────────────────────────────────────────
+  const r3Scores = r3?.scores ?? [0, 0];
   const totals = [0, 1].map((ti) =>
-    (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0)
+    (results[ti][0]?.score ?? 0) + (results[ti][1]?.score ?? 0) + r3Scores[ti]
   );
   const totalTimes = [0, 1].map((ti) =>
     (results[ti][0]?.timeUsed ?? 0) + (results[ti][1]?.timeUsed ?? 0)
@@ -386,7 +697,7 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               {winner === ti && <div className="pyr-trophy">🏆</div>}
               <div className="pyr-final-name">Équipe {ti + 1}</div>
               <div className="pyr-final-score">{totals[ti]} pts</div>
-              <div className="pyr-final-time">⏱ {totalTimes[ti]}s au total</div>
+              <div className="pyr-final-time">⏱ {totalTimes[ti]}s</div>
               <div className="pyr-final-breakdown">
                 {[0, 1].map((ri) => {
                   const { hinter: h, guesser: g } = getRoles(ti, ri + 1);
@@ -400,6 +711,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
                     </div>
                   );
                 })}
+                <div className="pyr-final-row">
+                  <span className="pyr-final-round">M3</span>
+                  <span className="pyr-final-players">Enchères</span>
+                  <span className="pyr-final-pts">{r3Scores[ti]}pt</span>
+                </div>
               </div>
             </div>
           ))}

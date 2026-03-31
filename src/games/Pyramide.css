@@ -466,6 +466,201 @@
   font-style: italic;
 }
 
+/* ── ROUND 3 ────────────────────────────────────────────────── */
+
+.pyr-scores-recap {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.pyr-recap-team {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 0.9rem;
+  text-align: center;
+}
+
+.pyr-recap-team--start {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.pyr-recap-name { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.pyr-recap-score { font-size: 1.8rem; font-weight: 900; color: #ffd700; }
+.pyr-recap-time { font-size: 0.75rem; color: rgba(255,215,0,0.5); }
+
+.pyr-start-badge {
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  border-radius: 14px;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  font-weight: 700;
+  width: 100%;
+}
+
+.pyr-start-reason {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.45);
+  font-weight: 400;
+  margin-top: 0.2rem;
+}
+
+.pyr-r3-turn {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 215, 0, 0.8);
+  text-align: center;
+}
+
+.pyr-bid-question {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+  text-align: center;
+}
+
+.pyr-bid-buttons {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.pyr-bid-section-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.4);
+  align-self: flex-start;
+}
+
+.pyr-bid-team-btns {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.pyr-bid-team-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: white;
+  padding: 0.75rem 0.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pyr-bid-team-btn--selected {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.pyr-bid-team-name {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.pyr-bid-team-players {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pyr-bid-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.08);
+  color: #ffd700;
+  font-size: 1.5rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.pyr-bid-btn:hover {
+  background: rgba(255, 215, 0, 0.2);
+  transform: scale(1.08);
+}
+
+.pyr-bid-btn:active { transform: scale(0.94); }
+
+.pyr-bid-btn--selected {
+  background: rgba(255, 215, 0, 0.25);
+  border-color: #ffd700;
+}
+
+.pyr-bid-status {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.pyr-bid-or {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+}
+
+.pyr-btn--wide { width: 100%; }
+
+.pyr-hints-left {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: #ffd700;
+  text-align: center;
+}
+
+.pyr-hints-left--zero {
+  color: rgba(239, 68, 68, 0.8);
+}
+
+.pyr-r3-scoreboard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+}
+
+.pyr-r3-team { font-size: 0.85rem; }
+.pyr-r3-team strong { color: #ffd700; font-size: 1.1rem; }
+
+.pyr-r3-scoreboard--big {
+  justify-content: center;
+  gap: 2rem;
+  margin: 0.5rem 0;
+}
+
+.pyr-r3-team-big {
+  font-size: 1rem;
+  text-align: center;
+  color: rgba(255,255,255,0.6);
+}
+.pyr-r3-team-big strong { font-size: 2.5rem; color: #ffd700; display: block; }
+.pyr-r3-sep { font-size: 2rem; color: rgba(255,255,255,0.2); }
+
+.pyr-r3-result {
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
+}
+.pyr-r3-result--correct { color: #4ade80; }
+.pyr-r3-result--failed { color: #f87171; }
+
 .pyr-tie {
   font-size: 1.4rem;
   color: rgba(255, 255, 255, 0.7);
