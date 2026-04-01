@@ -10,8 +10,14 @@ const GAMES = [
   { id: "drawing", label: "Drawing", icon: "🎨", color: "#be185d" },
   { id: "snake", label: "Snake", icon: "🐍", color: "#b91c1c" },
   { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#0891b2" },
-  { id: "dond", label: "À prendre ou à laisser", icon: "💼", color: "#15803d" },
-  { id: "pyramide", label: "Pyramide", icon: "🔺", color: "#b45309" },
+  { id: "dond", label: "À prendre ou à laisser", icon: "📦", color: "#15803d" },
+  { id: "pyramide", label: "Pyramide", icon: "🔺", color: "#ffff00" },
+  {
+    id: "qvema",
+    label: "Qui veut être mon associé ?",
+    icon: "💼",
+    color: "#b45309",
+  },
 ];
 
 function App() {
