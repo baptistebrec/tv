@@ -157,6 +157,22 @@
 .rl-chip:hover  { background: color-mix(in srgb, var(--pcolor, #fbbf24) 35%, #111); }
 .rl-chip.sel    { background: var(--pcolor, #fbbf24); color: #000; transform: scale(1.18); }
 
+.rl-clear-player {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--pcolor);
+  background: color-mix(in srgb, var(--pcolor) 15%, #111);
+  color: var(--pcolor);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  margin-left: auto;
+}
+.rl-clear-player:hover:not(:disabled) { background: color-mix(in srgb, var(--pcolor) 30%, #111); }
+.rl-clear-player:disabled { opacity: 0.3; cursor: not-allowed; }
+
 /* ── Round results ── */
 .rl-round-results {
   display: flex;

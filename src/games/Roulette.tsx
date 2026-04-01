@@ -14,7 +14,7 @@ const WHEEL_ORDER = [
 const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 const SECTOR_COUNT = 37;
 const SECTOR_DEG = 360 / SECTOR_COUNT;
-const CHIP_VALUES = [5, 10, 25, 50, 100, 500];
+const CHIP_VALUES = [1, 5, 10, 25, 50, 100, 500];
 const CX = 150, CY = 150, OUTER_R = 140, INNER_R = 58;
 
 const TABLE_ROWS = [
@@ -238,7 +238,7 @@ export function Roulette({ onBack }: RouletteProps) {
           {/* Active player indicator + chip selector */}
           {activePlayer !== null && (
             <div className="rl-active-bar" style={{ borderColor: activeColor, color: activeColor }}>
-              <span className="rl-active-label">P{activePlayer + 1} mise</span>
+              <span className="rl-active-label">P{activePlayer + 1}</span>
               <div className="rl-chips">
                 {CHIP_VALUES.map(v => (
                   <button
@@ -249,6 +249,12 @@ export function Roulette({ onBack }: RouletteProps) {
                   >{v}</button>
                 ))}
               </div>
+              <button
+                className="rl-clear-player"
+                style={{ "--pcolor": activeColor } as React.CSSProperties}
+                onClick={() => setPlayerBets(prev => { const n = { ...prev }; delete n[activePlayer]; return n; })}
+                disabled={spinning || !Object.keys(activeBets).length}
+              >✕ Effacer P{activePlayer + 1}</button>
             </div>
           )}
 
