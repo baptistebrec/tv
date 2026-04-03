@@ -5,7 +5,7 @@ import {
 } from "../data/familleEnOr";
 import "./FamilleEnOr.css";
 
-const TOTAL_ROUNDS = 3;
+const TOTAL_ROUNDS = 4;
 const TEAM_COLORS = ["#3b82f6", "#f97316"] as const;
 const TEAM_LABELS = ["Équipe 1", "Équipe 2"] as const;
 
@@ -59,7 +59,7 @@ export function FamilleEnOr({ onBack }: Props) {
   const question: FamilleEnOrQuestion = FAMILLE_EN_OR_QUESTIONS[questionIdx];
   const total = FAMILLE_EN_OR_QUESTIONS.length;
   const isLastRound = round === TOTAL_ROUNDS;
-  const multiplier = isLastRound ? 2 : 1;
+  const multiplier = isLastRound ? 3 : 1;
 
   const revealedPoints = [...revealed].reduce(
     (sum, i) => sum + question.answers[i].points,
@@ -166,7 +166,7 @@ export function FamilleEnOr({ onBack }: Props) {
           </button>
           <div className="feo-round-badge">
             Manche {round}/{TOTAL_ROUNDS}
-            {isLastRound && <span className="feo-double-badge">×2</span>}
+            {isLastRound && <span className="feo-double-badge">×3</span>}
           </div>
           <div className="feo-nav">
             <button
@@ -199,7 +199,7 @@ export function FamilleEnOr({ onBack }: Props) {
           {revealedPoints > 0 && !awarded && (
             <p className="feo-points-preview">
               {revealedPoints} pt{revealedPoints > 1 ? "s" : ""} sélectionnés
-              {isLastRound && ` → ${revealedPoints * 2} pts (×2)`}
+              {isLastRound && ` → ${revealedPoints * 3} pts (×3)`}
             </p>
           )}
         </div>

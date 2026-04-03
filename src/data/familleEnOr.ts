@@ -34,6 +34,16 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ]
   },
   {
+    question: "Qu'est-ce que les Hommes n'osent pas faire en présence de leurs pote ?",
+    answers: [
+      {text: "Parler de leurs sentiments", points: 21},
+      {text: "Pleurer", points: 18},
+      {text: "Dire 'je t'aime'", points: 17},
+      {text: "Etre tendre avec leur chérie", points: 12},
+      {text: "Tâches ménagères", points: 8},
+    ]
+  },
+  {
     question: "Citez quelque chose qui se passe de main en main.",
     answers: [
       { text: "Un joint", points: 34 },
