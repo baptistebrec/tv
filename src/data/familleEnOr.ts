@@ -211,16 +211,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez un endroit plein de gens qui ne veulent pas y être.",
-    answers: [
-      { text: "Prison", points: 36 },
-      { text: "Enfer", points: 10 },
-      { text: "Travail/Réunions", points: 10 },
-      { text: "Cimetière", points: 8 },
-      { text: "Église", points: 8 },
-    ],
-  },
-  {
     question: "Citez un animal facile à imiter aux charades.",
     answers: [
       { text: "Singe", points: 32 },
@@ -230,19 +220,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Éléphant", points: 4 },
       { text: "Kangourou", points: 4 },
       { text: "Lapin", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui vous appartient et que vous jurez être possédé par le démon.",
-    answers: [
-      { text: "Les enfants", points: 16 },
-      { text: "La voiture", points: 14 },
-      { text: "La maison", points: 10 },
-      { text: "L'animal de compagnie", points: 10 },
-      { text: "L'ordinateur", points: 9 },
-      { text: "Moi-même", points: 8 },
-      { text: "Le téléphone portable", points: 5 },
-      { text: "Le conjoint", points: 4 },
     ],
   },
   {
@@ -298,26 +275,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose qui éclate.",
-    answers: [
-      { text: "Bouton/Acné", points: 83 },
-      { text: "Prisonnier", points: 11 },
-      { text: "Animal domestique", points: 3 },
-      { text: "Épidémie/Grippe", points: 2 },
-    ],
-  },
-  {
-    question: "Que vous le vouliez ou non, citez un endroit où les gens doivent aller.",
-    answers: [
-      { text: "Toilettes/Salle de bain", points: 53 },
-      { text: "Travail", points: 21 },
-      { text: "Hôpital/Dentiste", points: 10 },
-      { text: "Épicerie/Supermarché", points: 5 },
-      { text: "Tribunal/Jury", points: 4 },
-      { text: "Préfecture", points: 4 },
-    ],
-  },
-  {
     question: "Citez un endroit où les gens vont à la recherche du bonheur.",
     answers: [
       { text: "Vacances", points: 60 },
@@ -333,26 +290,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Travail/Réunion", points: 17 },
       { text: "Bus/Train", points: 11 },
       { text: "Église", points: 11 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui fait éternuer les gens.",
-    answers: [
-      { text: "Poivre", points: 52 },
-      { text: "Pollen", points: 30 },
-      { text: "Poussière", points: 6 },
-      { text: "Ambroisie", points: 3 },
-      { text: "Rhumes", points: 2 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que les gens donnent des coups de pied.",
-    answers: [
-      { text: "Ballons", points: 65 },
-      { text: "Pneus", points: 10 },
-      { text: "Chiens", points: 8 },
-      { text: "Boîtes de conserve", points: 7 },
-      { text: "Seaux", points: 6 },
     ],
   },
   {
@@ -386,16 +323,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose que vous ne voudriez pas trouver dans votre boîte de céréales.",
-    answers: [
-      { text: "Un insecte vivant", points: 30 },
-      { text: "Une paire de chaussettes", points: 25 },
-      { text: "Une lettre d'amour du carton de lait", points: 20 },
-      { text: "Un traceur GPS", points: 15 },
-      { text: "Une autre boîte de céréales plus petite", points: 10 },
-    ],
-  },
-  {
     question: "Citez quelque chose que les gens font dans les ascenseurs quand ils pensent que personne ne les regarde.",
     answers: [
       { text: "Danser", points: 35 },
@@ -426,36 +353,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Hormis la belette, citez quelque chose qui fait 'pop'.",
-    answers: [
-      { text: "Popcorn", points: 24 },
-      { text: "Rice Krispies", points: 17 },
-      { text: "Ballons", points: 10 },
-      { text: "Pringles", points: 5 },
-      { text: "Bulles", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que vous pourriez accidentellement rétrécir au lavage.",
-    answers: [
-      { text: "Pull préféré", points: 30 },
-      { text: "Chaussettes porte-bonheur", points: 25 },
-      { text: "Serviettes", points: 20 },
-      { text: "Jean", points: 15 },
-      { text: "Vos espoirs et rêves", points: 10 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que vous trouveriez dans le panier à linge d'un super-héros.",
-    answers: [
-      { text: "Cape avec étiquette pressing", points: 30 },
-      { text: "Costume en spandex", points: 25 },
-      { text: "Ceinture utilitaire", points: 20 },
-      { text: "Masque avec trous pour les yeux", points: 15 },
-      { text: "Chaussettes invisibles", points: 10 },
-    ],
-  },
-  {
     question: "Citez quelque chose dans quoi une personne pourrait se retrouver piégée.",
     answers: [
       { text: "La pluie", points: 24 },
@@ -463,17 +360,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Un piège", points: 10 },
       { text: "Les embouteillages", points: 10 },
       { text: "Un filet", points: 5 },
-    ],
-  },
-  {
-    question: "De quoi peut-on avoir des couches ?",
-    answers: [
-      { text: "Vêtements", points: 36 },
-      { text: "Peau", points: 20 },
-      { text: "Gâteau", points: 17 },
-      { text: "Graisse", points: 14 },
-      { text: "Cheveux", points: 5 },
-      { text: "Couverture", points: 3 },
     ],
   },
   {
@@ -540,15 +426,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez un endroit dans le journal où vous ne voudriez pas voir votre nom.",
-    answers: [
-      { text: "Nécrologie", points: 75 },
-      { text: "Liste des personnes recherchées", points: 10 },
-      { text: "Une du journal", points: 9 },
-      { text: "Petites annonces", points: 3 },
-    ],
-  },
-  {
     question: "Citez un cadeau de mariage populaire.",
     answers: [
       { text: "Grille-pain", points: 24 },
@@ -574,15 +451,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose qui peut être engagé.",
-    answers: [
-      { text: "Des personnes", points: 39 },
-      { text: "Téléphone", points: 35 },
-      { text: "Toilettes", points: 19 },
-      { text: "Vitesse", points: 6 },
-    ],
-  },
-  {
     question: "Citez quelque chose que vous ne vendriez jamais même si vous étiez complètement fauché.",
     answers: [
       { text: "Bague/Bijoux", points: 26 },
@@ -603,19 +471,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Un emploi", points: 7 },
       { text: "De l'argent/Un compte en banque", points: 5 },
       { text: "Un test sanguin", points: 4 },
-      { text: "Un trousseau", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui contient le mot 'super'.",
-    answers: [
-      { text: "Superman", points: 47 },
-      { text: "Super Bowl", points: 9 },
-      { text: "Supermarché", points: 9 },
-      { text: "Super Glue", points: 6 },
-      { text: "Supersonique", points: 6 },
-      { text: "Supersize", points: 5 },
-      { text: "Superstar", points: 5 },
     ],
   },
   {
@@ -643,27 +498,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose que vous détesteriez découvrir périmé.",
-    answers: [
-      { text: "Permis de conduire", points: 37 },
-      { text: "Lait", points: 18 },
-      { text: "Carte de crédit", points: 12 },
-      { text: "Assurance", points: 7 },
-      { text: "Carte grise", points: 5 },
-      { text: "Ma propre vie", points: 3 },
-    ],
-  },
-  {
-    question: "Quelle serait la pire chose à laquelle être allergique ?",
-    answers: [
-      { text: "La nourriture", points: 32 },
-      { text: "Les gens", points: 17 },
-      { text: "L'eau", points: 12 },
-      { text: "Les animaux", points: 7 },
-      { text: "L'argent", points: 7 },
-    ],
-  },
-  {
     question: "Citez quelque chose que les gens ont de moins en vieillissant.",
     answers: [
       { text: "Cheveux", points: 40 },
@@ -681,16 +515,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Réfrigérateur", points: 9 },
       { text: "Téléphone", points: 7 },
       { text: "Micro-ondes", points: 3 },
-    ],
-  },
-  {
-    question: "Citez un aliment qui est compliqué à manger.",
-    answers: [
-      { text: "Spaghettis bolognaise", points: 43 },
-      { text: "Spaghettis", points: 22 },
-      { text: "Soupe/Chili", points: 6 },
-      { text: "Côtes de porc", points: 6 },
-      { text: "Pizza", points: 5 },
     ],
   },
   {
@@ -716,58 +540,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Complétez la phrase : Il est difficile de trouver un bon ______.",
-    answers: [
-      { text: "Homme", points: 44 },
-      { text: "Femme", points: 10 },
-      { text: "Emploi", points: 8 },
-      { text: "Coiffeur", points: 5 },
-      { text: "Femme de ménage", points: 5 },
-    ],
-  },
-  {
-    question: "Quel est l'objet le plus miteux que vous possédez ?",
-    answers: [
-      { text: "Vêtements", points: 63 },
-      { text: "Voiture", points: 12 },
-      { text: "Meubles", points: 7 },
-      { text: "Un membre de la famille", points: 3 },
-      { text: "Une pièce", points: 3 },
-      { text: "Rideaux", points: 2 },
-    ],
-  },
-  {
-    question: "Citez une plainte que les gens ont sur les hôpitaux.",
-    answers: [
-      { text: "La nourriture", points: 29 },
-      { text: "L'attente", points: 16 },
-      { text: "Le coût", points: 14 },
-      { text: "L'odeur", points: 12 },
-      { text: "Le service", points: 10 },
-      { text: "Les infirmières", points: 4 },
-    ],
-  },
-  {
-    question: "Quelle est la chose la plus bizarre que vous avez trouvée au fond de votre sac ?",
-    answers: [
-      { text: "Un sandwich oublié depuis l'été dernier", points: 25 },
-      { text: "Une chaussette disparue depuis trois ans", points: 19 },
-      { text: "Une lettre d'amour à un personnage fictif", points: 17 },
-      { text: "Un portail vers une dimension parallèle", points: 5 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui est vraiment, vraiment poilu.",
-    answers: [
-      { text: "Singe", points: 38 },
-      { text: "Chien", points: 27 },
-      { text: "Être humain", points: 15 },
-      { text: "Chat", points: 7 },
-      { text: "Ours", points: 5 },
-      { text: "Mouffette", points: 3 },
-    ],
-  },
-  {
     question: "Citez quelque chose qui peut gâcher le dîner.",
     answers: [
       { text: "Nourriture brûlée", points: 37 },
@@ -776,17 +548,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Grignoter avant", points: 7 },
       { text: "Cheveu dans la nourriture", points: 6 },
       { text: "Invité en retard", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que votre mari essaie de réparer mais qui empire souvent les choses.",
-    answers: [
-      { text: "La plomberie", points: 41 },
-      { text: "La voiture", points: 13 },
-      { text: "La TV", points: 9 },
-      { text: "La relation", points: 6 },
-      { text: "La dispute", points: 5 },
-      { text: "Le dîner", points: 4 },
     ],
   },
   {
@@ -807,28 +568,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Oublier le nom de l'entreprise/du recruteur", points: 35 },
       { text: "Trébucher et tomber", points: 14 },
       { text: "Porter des chaussettes dépareillées", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui 'vous enchaîne'.",
-    answers: [
-      { text: "Avoir des enfants", points: 27 },
-      { text: "Travail", points: 18 },
-      { text: "Conjoint", points: 15 },
-      { text: "Corde", points: 14 },
-      { text: "Factures", points: 9 },
-      { text: "Animal de compagnie", points: 3 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que les gens essaient d'éviter.",
-    answers: [
-      { text: "Jury/Tribunal", points: 30 },
-      { text: "Travail", points: 18 },
-      { text: "Factures", points: 7 },
-      { text: "Mauvaises relations", points: 7 },
-      { text: "Contraventions", points: 6 },
-      { text: "Dettes", points: 5 },
     ],
   },
   {
@@ -853,28 +592,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose dont vous pourriez vous rattraper.",
-    answers: [
-      { text: "La lecture", points: 30 },
-      { text: "Le sommeil", points: 29 },
-      { text: "Les factures", points: 9 },
-      { text: "Les tâches ménagères", points: 8 },
-      { text: "Feuilletons/TV", points: 6 },
-      { text: "Le travail", points: 5 },
-    ],
-  },
-  {
-    question: "Citez quelque chose dont les gens tombent.",
-    answers: [
-      { text: "L'amour", points: 28 },
-      { text: "Le lit", points: 25 },
-      { text: "La chaise/Le siège", points: 19 },
-      { text: "L'avion", points: 9 },
-      { text: "La voiture", points: 6 },
-      { text: "Le bateau", points: 4 },
-    ],
-  },
-  {
     question: "Citez quelque chose qui manque toujours lors d'une fête.",
     answers: [
       { text: "Boissons/Alcool", points: 45 },
@@ -883,16 +600,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Verres/Gobelets", points: 4 },
       { text: "Papier toilette", points: 3 },
       { text: "Serviettes", points: 3 },
-    ],
-  },
-  {
-    question: "Citez un endroit où vous détesteriez recevoir un appel sur votre portable.",
-    answers: [
-      { text: "Toilettes/Salle de bain", points: 21 },
-      { text: "Église", points: 20 },
-      { text: "Voiture/En conduisant", points: 17 },
-      { text: "Cinéma/Théâtre", points: 9 },
-      { text: "Travail", points: 6 },
     ],
   },
   {
@@ -906,15 +613,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez une excuse que les gens donnent pour être en retard qui est trop ridicule pour être vraie.",
-    answers: [
-      { text: "Coincé dans un voyage dans le temps", points: 35 },
-      { text: "Enlèvement par des extraterrestres", points: 14 },
-      { text: "Poursuivi par un essaim d'abeilles", points: 11 },
-      { text: "Accidentellement rejoint un défilé", points: 7 },
-    ],
-  },
-  {
     question: "Dites-moi quelque chose qui a l'air terrible quand c'est mouillé.",
     answers: [
       { text: "Chiens/Animaux", points: 43 },
@@ -922,30 +620,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Vêtements/Chaussures", points: 12 },
       { text: "Pain", points: 4 },
       { text: "Journal", points: 2 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui tremble.",
-    answers: [
-      { text: "Gelée/Flan", points: 34 },
-      { text: "Personne/Danseur", points: 26 },
-      { text: "Terre/Tremblement de terre", points: 9 },
-      { text: "Hochet de bébé", points: 7 },
-      { text: "Feuilles/Arbre", points: 5 },
-      { text: "Chien", points: 4 },
-      { text: "Vieille voiture", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que les gens sortent.",
-    answers: [
-      { text: "Les poubelles", points: 40 },
-      { text: "De la nourriture (à emporter)", points: 31 },
-      { text: "Argent/Prêt", points: 9 },
-      { text: "Chien/Animal", points: 8 },
-      { text: "Conjoint", points: 5 },
-      { text: "Livres de bibliothèque", points: 2 },
-      { text: "Assurance vie", points: 2 },
     ],
   },
   {
@@ -971,28 +645,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Dites-moi quelque chose qui ne démarre souvent pas quand il le devrait.",
-    answers: [
-      { text: "La voiture", points: 52 },
-      { text: "Le film", points: 7 },
-      { text: "Le mariage/La cérémonie", points: 7 },
-      { text: "La tondeuse", points: 7 },
-      { text: "La réunion", points: 5 },
-      { text: "L'événement sportif", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose qui vous retient.",
-    answers: [
-      { text: "Les enfants", points: 27 },
-      { text: "Le travail", points: 18 },
-      { text: "Le conjoint", points: 15 },
-      { text: "Une corde", points: 14 },
-      { text: "Les factures/Dettes", points: 9 },
-      { text: "L'animal de compagnie", points: 3 },
-    ],
-  },
-  {
     question: "Citez quelque chose que les hommes détestent perdre.",
     answers: [
       { text: "Argent/Portefeuille", points: 29 },
@@ -1000,22 +652,11 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Clés", points: 14 },
       { text: "Les femmes", points: 10 },
       { text: "Emploi", points: 5 },
-      { text: "Arguments", points: 4 },
+      { text: "Dispute", points: 4 },
     ],
   },
   {
-    question: "Citez quelque chose que les gens répandent.",
-    answers: [
-      { text: "Germes/Maladies", points: 30 },
-      { text: "Beurre", points: 25 },
-      { text: "Rumeurs/Ragots", points: 18 },
-      { text: "Beurre de cacahuète", points: 9 },
-      { text: "Confiture", points: 6 },
-      { text: "Mayonnaise", points: 5 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que vous feriez l'impasse si vous étiez en retard au travail.",
+    question: "Citez quelque chose dont vous feriez l'impasse si vous étiez en retard au travail.",
     answers: [
       { text: "Petit-déjeuner/Café", points: 80 },
       { text: "La douche", points: 6 },
@@ -1084,7 +725,7 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Être célibataire", points: 20 },
       { text: "Les revenus", points: 19 },
       { text: "Succès avec les femmes", points: 6 },
-      { text: "Le titre du poste", points: 5 },
+      { text: "Le travail", points: 5 },
       { text: "Le poids", points: 5 },
     ],
   },
@@ -1096,19 +737,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Se marier", points: 8 },
       { text: "Aller chez le dentiste", points: 8 },
       { text: "Aller chez le médecin", points: 5 },
-    ],
-  },
-  {
-    question: "Citez quelque chose sur lequel vous montez de temps en temps.",
-    answers: [
-      { text: "Avion", points: 16 },
-      { text: "Bus", points: 15 },
-      { text: "Vélo", points: 12 },
-      { text: "Balance", points: 7 },
-      { text: "Grands chevaux", points: 6 },
-      { text: "Métro", points: 5 },
-      { text: "Régime", points: 5 },
-      { text: "Ordinateur", points: 5 },
     ],
   },
   {
@@ -1173,33 +801,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Citez quelque chose qui peut être farci.",
-    answers: [
-      { text: "Dinde", points: 45 },
-      { text: "Animaux", points: 41 },
-      { text: "Coussins", points: 5 },
-      { text: "Œufs", points: 4 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que les gens attrapent.",
-    answers: [
-      { text: "Maladie", points: 41 },
-      { text: "Poisson", points: 36 },
-      { text: "Ballons", points: 15 },
-      { text: "Bouquet", points: 3 },
-    ],
-  },
-  {
-    question: "Citez un synonyme du mariage qui ne le fait pas paraître amusant.",
-    answers: [
-      { text: "Le boulet", points: 57 },
-      { text: "Se passer la corde au cou", points: 23 },
-      { text: "Être enchaîné", points: 12 },
-      { text: "Être attaché", points: 3 },
-    ],
-  },
-  {
     question: "Citez quelque chose qu'un enfant dit quand il fait quelque chose de mal.",
     answers: [
       { text: "Désolé", points: 56 },
@@ -1227,30 +828,12 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
-    question: "Que feriez-vous pour un cadeau si vous manquez d'argent ?",
-    answers: [
-      { text: "Cadeau fait maison", points: 47 },
-      { text: "Donner une carte", points: 36 },
-      { text: "Payer par carte", points: 7 },
-      { text: "Re-offrir un cadeau reçu", points: 5 },
-    ],
-  },
-  {
     question: "Citez quelque chose que les gens laissent tremper toute une nuit.",
     answers: [
       { text: "Vêtements", points: 44 },
       { text: "Nourriture", points: 21 },
       { text: "Vaisselle", points: 15 },
       { text: "Dentier", points: 9 },
-    ],
-  },
-  {
-    question: "Si un commissaire-priseur avait un bébé, quels pourraient être ses premiers mots ?",
-    answers: [
-      { text: "Vendu !", points: 43 },
-      { text: "Une fois… adjugé !", points: 28 },
-      { text: "Enchère !", points: 10 },
-      { text: "Qui dit mieux ?", points: 5 },
     ],
   },
   {
@@ -1262,68 +845,6 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
       { text: "Ascenseur", points: 5 },
       { text: "Bus/Transport en commun", points: 4 },
       { text: "Maillot de bain", points: 3 },
-    ],
-  },
-  {
-    question: "Comment pouvez-vous dire immédiatement qu'un e-mail est un spam ?",
-    answers: [
-      { text: "Expéditeur inconnu", points: 35 },
-      { text: "Pas d'objet", points: 23 },
-      { text: "Va dans les indésirables", points: 18 },
-      { text: "Alerte virus", points: 14 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que les humains portent, mais qui a l'air ridicule sur les chats.",
-    answers: [
-      { text: "Chapeaux", points: 44 },
-      { text: "Chaussures", points: 31 },
-      { text: "Lunettes", points: 12 },
-      { text: "Pull", points: 10 },
-    ],
-  },
-  {
-    question: "Citez quelque chose que vous pourriez grimper dans un arbre pour aller chercher.",
-    answers: [
-      { text: "Un chat", points: 42 },
-      { text: "Des fruits", points: 24 },
-      { text: "Un ballon", points: 21 },
-      { text: "Un cerf-volant", points: 11 },
-    ],
-  },
-  {
-    question: "Citez un délit que la plupart des policiers ont probablement commis eux-mêmes.",
-    answers: [
-      { text: "Excès de vitesse", points: 58 },
-      { text: "Vol", points: 34 },
-      { text: "Traverser hors des clous", points: 3 },
-      { text: "Jeter des déchets par terre", points: 3 },
-    ],
-  },
-  {
-    question: "Citez un type d'arbre qui aurait l'air ridicule en tant que sapin de Noël.",
-    answers: [
-      { text: "Chêne", points: 48 },
-      { text: "Palmier", points: 32 },
-      { text: "Érable", points: 13 },
-      { text: "Arbre fruitier", points: 5 },
-    ],
-  },
-  {
-    question: "Quelle phrase de leurs vœux de mariage les gens ont-ils le plus de mal à respecter ?",
-    answers: [
-      { text: "Honorer et obéir", points: 41 },
-      { text: "Jusqu'à ce que la mort nous sépare", points: 29 },
-      { text: "Pour le meilleur et pour le pire", points: 18 },
-      { text: "Dans la maladie et la santé", points: 9 },
-    ],
-  },
-  {
-    question: "Quels endroits les politiciens disent-ils souvent être 'surpeuplés' ?",
-    answers: [
-      { text: "Prisons", points: 46 },
-      { text: "Salles de classe", points: 40 },
-      { text: "Hôpitaux/Urgences", points: 11 },
     ],
   },
 ];
