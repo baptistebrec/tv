@@ -73,7 +73,6 @@ export function FamilleEnOr({ onBack }: Props) {
   }
 
   function toggleAnswer(i: number) {
-    if (awarded) return;
     setRevealed((prev) => {
       const next = new Set(prev);
       if (next.has(i)) next.delete(i);
@@ -83,12 +82,10 @@ export function FamilleEnOr({ onBack }: Props) {
   }
 
   function revealAll() {
-    if (awarded) return;
     setRevealed(new Set(question.answers.map((_, i) => i)));
   }
 
   function hideAll() {
-    if (awarded) return;
     setRevealed(new Set());
   }
 
@@ -213,7 +210,7 @@ export function FamilleEnOr({ onBack }: Props) {
             return (
               <button
                 key={i}
-                className={`feo-answer-row ${isRevealed ? "feo-answer-row--revealed" : ""} ${awarded ? "feo-answer-row--locked" : ""}`}
+                className={`feo-answer-row ${isRevealed ? "feo-answer-row--revealed" : ""}`}
                 onClick={() => toggleAnswer(i)}
               >
                 <span className="feo-answer-rank">{i + 1}</span>

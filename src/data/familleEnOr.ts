@@ -22,6 +22,18 @@ export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
     ],
   },
   {
+    question: "Ques faites-vous pour attirer l'attention de quelqu'un qui vous plaît en soirée?",
+    answers: [
+      {text: "Lancer un regard/Clin d'oeil", points: 25},
+      {text: "Offir un verre", points: 19},
+      {text: "Sourire", points: 16},
+      {text: "Danser devant ou avec lui/elle", points: 14},
+      {text: "Faire des blagues", points: 8},
+      {text: "Parler fort", points: 6},
+      {text: "Feindre l'indifférence", points: 5},
+    ]
+  },
+  {
     question: "Citez quelque chose qui se passe de main en main.",
     answers: [
       { text: "Un joint", points: 34 },
