@@ -1,0 +1,349 @@
+.feo-root {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  background: #0f172a;
+}
+
+/* ── Team panels (sides) ── */
+.feo-team-panel {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 16px;
+  background: color-mix(in srgb, var(--team-color) 12%, #0f172a);
+  border-right: 2px solid color-mix(in srgb, var(--team-color) 30%, transparent);
+
+  &:last-child {
+    border-right: none;
+    border-left: 2px solid color-mix(in srgb, var(--team-color) 30%, transparent);
+  }
+}
+
+.feo-team-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--team-color);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.feo-team-pts {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #f1f5f9;
+  line-height: 1;
+}
+
+.feo-award-btn {
+  width: 100%;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 2px solid var(--team-color);
+  background: color-mix(in srgb, var(--team-color) 20%, #1e293b);
+  color: #f1f5f9;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--team-color) 40%, #1e293b);
+    transform: scale(1.04);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+}
+
+/* ── Main center column ── */
+.feo-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 20px;
+  box-sizing: border-box;
+}
+
+/* ── Top bar ── */
+.feo-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.feo-back {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 2px solid #475569;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: #94a3b8;
+    color: #f1f5f9;
+  }
+}
+
+.feo-round-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.feo-double-badge {
+  background: #f59e0b;
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.feo-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.feo-nav-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid #475569;
+  background: transparent;
+  color: #f1f5f9;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: #f59e0b;
+    background: #1e293b;
+    color: #f59e0b;
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+}
+
+/* ── Question box ── */
+.feo-question-box {
+  width: 100%;
+  background: #1e293b;
+  border: 2px solid #f59e0b;
+  border-radius: 16px;
+  padding: 24px 32px;
+  text-align: center;
+}
+
+.feo-question {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.4;
+}
+
+.feo-points-preview {
+  margin: 10px 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+/* ── Answer rows ── */
+.feo-answers {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feo-answer-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 72px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 2px solid #334155;
+  background: #1e293b;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  min-height: 52px;
+
+  &:hover:not(.feo-answer-row--locked) {
+    border-color: #64748b;
+    background: #263145;
+  }
+
+  &:active:not(.feo-answer-row--locked) {
+    transform: scale(0.99);
+  }
+}
+
+.feo-answer-row--revealed {
+  border-color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 15%, #1e293b);
+
+  &:hover:not(.feo-answer-row--locked) {
+    border-color: #fbbf24;
+    background: color-mix(in srgb, #f59e0b 22%, #1e293b);
+  }
+}
+
+.feo-answer-row--locked {
+  cursor: default;
+}
+
+.feo-answer-rank {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #64748b;
+  text-align: center;
+
+  .feo-answer-row--revealed & {
+    color: #f59e0b;
+  }
+}
+
+.feo-answer-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  min-height: 1.4em;
+}
+
+.feo-answer-points {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #f59e0b;
+  text-align: right;
+}
+
+/* ── Actions ── */
+.feo-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.feo-action-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 2px solid #f59e0b;
+  background: #f59e0b;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover {
+    background: #fbbf24;
+    border-color: #fbbf24;
+  }
+}
+
+.feo-action-btn--secondary {
+  background: transparent;
+  color: #f59e0b;
+
+  &:hover {
+    background: #1e293b;
+  }
+}
+
+/* ── Game over ── */
+.feo-root--gameover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feo-gameover-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  text-align: center;
+}
+
+.feo-gameover-title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  color: #f59e0b;
+  margin: 0;
+}
+
+.feo-gameover-scores {
+  display: flex;
+  gap: 24px;
+}
+
+.feo-gameover-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 40px;
+  border-radius: 20px;
+  border: 2px solid var(--team-color);
+  background: color-mix(in srgb, var(--team-color) 15%, #1e293b);
+}
+
+.feo-gameover-team--winner {
+  border-width: 3px;
+  background: color-mix(in srgb, var(--team-color) 25%, #1e293b);
+}
+
+.feo-gameover-team-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--team-color);
+  text-transform: uppercase;
+}
+
+.feo-gameover-team-score {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #f1f5f9;
+}
+
+.feo-gameover-crown {
+  font-size: 2rem;
+}
+
+.feo-gameover-tie {
+  font-size: 1.4rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.feo-gameover-actions {
+  display: flex;
+  gap: 12px;
+}

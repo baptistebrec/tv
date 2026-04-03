@@ -4,12 +4,14 @@ import { WheelOfFortune } from "./games/WheelOfFortune";
 import DealOrNoDeal from "./games/DealOrNoDeal";
 import { Pyramide } from "./games/Pyramide";
 import { Roulette } from "./games/Roulette";
+import { FamilleEnOr } from "./games/FamilleEnOr";
 
 const GAMES = [
   { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#0891b2" },
   { id: "dond", label: "À prendre ou à laisser", icon: "📦", color: "#15803d" },
   { id: "pyramide", label: "Pyramide", icon: "🔺", color: "#ffff00" },
   { id: "roulette", label: "Roulette", icon: "🎰", color: "#b91c1c" },
+  { id: "famille", label: "Une Famille en Or", icon: "🏆", color: "#d97706" },
   {
     id: "qvema",
     label: "Qui veut être mon associé ?",
@@ -33,6 +35,10 @@ function App() {
 
   if (activeGame === "roulette") {
     return <Roulette onBack={() => setActiveGame(null)} />;
+  }
+
+  if (activeGame === "famille") {
+    return <FamilleEnOr onBack={() => setActiveGame(null)} />;
   }
 
   if (activeGame === "wheel" && wheelPlayers) {

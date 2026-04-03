@@ -10,6 +10,18 @@ export type FamilleEnOrQuestion = {
 
 export const FAMILLE_EN_OR_QUESTIONS: FamilleEnOrQuestion[] = [
   {
+    question: "Si on l'oubile en partant de chez soi, c'est la cata.",
+    answers: [
+      { text: "Clé", points: 27 },
+      { text: "Téléphone", points: 26 },
+      { text: "Eteindre le gaz", points: 16 },
+      { text: "Portefeuille", points: 8 },
+      { text: "Fermer la porte", points: 6 },
+      { text: "Fermer les fenêtres", points: 5 },
+      { text: "Son enfant", points: 3 },
+    ],
+  },
+  {
     question: "Citez quelque chose qui se passe de main en main.",
     answers: [
       { text: "Un joint", points: 34 },
