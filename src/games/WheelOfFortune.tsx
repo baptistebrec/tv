@@ -5,19 +5,26 @@ import { MYSTERY_WORDS, PHRASES } from "../data/dictionary";
 type WheelSegment = number | "BANKRUPT";
 
 const WHEEL_NORMAL: WheelSegment[] = [
-  100, 200, 300, 500, 1000, 2500, 5000, 500,
+  500, 10, 20, 100, 50, 20, 25, 50, 300, 50, 25, 20, 50, 100, 20, 10,
 ];
 const WHEEL_FINAL: WheelSegment[] = [
-  500,
   1000,
-  2500,
-  5000,
   "BANKRUPT",
-  2500,
-  1000,
+  50,
+  10,
+  100,
+  25,
+  50,
+  100,
   500,
+  100,
+  50,
+  25,
+  100,
+  10,
+  50,
+  "BANKRUPT",
 ];
-
 
 const TOTAL_ROUNDS = 4;
 const VOWEL_COST = 200;

@@ -53,11 +53,11 @@ interface R4State {
 // ── Finale ───────────────────────────────────────────────────────────────────
 
 const FINALE_LEVELS = [
-  { level: 1, prize: 1000, wordCount: 9 },
-  { level: 2, prize: 2500, wordCount: 8 },
-  { level: 3, prize: 5000, wordCount: 7 },
-  { level: 4, prize: 10000, wordCount: 6 },
-  { level: 5, prize: 20000, wordCount: 5 },
+  { level: 1, prize: 100, wordCount: 9 },
+  { level: 2, prize: 200, wordCount: 8 },
+  { level: 3, prize: 500, wordCount: 7 },
+  { level: 4, prize: 1000, wordCount: 6 },
+  { level: 5, prize: 2000, wordCount: 5 },
 ] as const;
 
 const FINALE_HINTS_PER_WORD = 3;
@@ -278,7 +278,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     if (phase !== "finale_playing" || finaleTimeLeft > 0) return;
     stopFinaleTimer();
-    setFinaleState((prev) => prev ? { ...prev, wonAmount: prev.safetyNetAmount, endReason: "failed" } : prev);
+    setFinaleState((prev) =>
+      prev
+        ? { ...prev, wonAmount: prev.safetyNetAmount, endReason: "failed" }
+        : prev,
+    );
     setPhase("finale_end");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finaleTimeLeft]);
@@ -519,7 +523,11 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     return [...MYSTERY_WORDS]
       .sort(() => Math.random() - 0.5)
       .slice(0, n)
-      .map((w) => ({ text: w.text, theme: w.theme, status: "pending" as FinaleWordStatus }));
+      .map((w) => ({
+        text: w.text,
+        theme: w.theme,
+        status: "pending" as FinaleWordStatus,
+      }));
   }
 
   function startFinale(winnerTeam: number) {
@@ -547,11 +555,18 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     if (!finaleState) return;
     const newWords = finaleState.words.map((w, i) =>
       i === finaleState.currentWordIdx
-        ? { ...w, status: (correct ? "correct" : "eliminated") as FinaleWordStatus }
-        : w
+        ? {
+            ...w,
+            status: (correct ? "correct" : "eliminated") as FinaleWordStatus,
+          }
+        : w,
     );
-    const newFoundCount = correct ? finaleState.foundCount + 1 : finaleState.foundCount;
-    const remainingPending = newWords.filter((w) => w.status === "pending").length;
+    const newFoundCount = correct
+      ? finaleState.foundCount + 1
+      : finaleState.foundCount;
+    const remainingPending = newWords.filter(
+      (w) => w.status === "pending",
+    ).length;
 
     if (newFoundCount >= FINALE_WORDS_NEEDED) {
       stopFinaleTimer();
@@ -559,7 +574,12 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
         finaleState.level === FINALE_SAFETY_LEVEL
           ? FINALE_LEVELS[FINALE_SAFETY_LEVEL - 1].prize
           : finaleState.safetyNetAmount;
-      setFinaleState({ ...finaleState, words: newWords, foundCount: newFoundCount, safetyNetAmount: newSafetyNet });
+      setFinaleState({
+        ...finaleState,
+        words: newWords,
+        foundCount: newFoundCount,
+        safetyNetAmount: newSafetyNet,
+      });
       setPhase("finale_level_success");
       return;
     }
@@ -577,7 +597,9 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
       return;
     }
 
-    const nextIdx = newWords.findIndex((w, i) => i > finaleState.currentWordIdx && w.status === "pending");
+    const nextIdx = newWords.findIndex(
+      (w, i) => i > finaleState.currentWordIdx && w.status === "pending",
+    );
     setFinaleState({
       ...finaleState,
       words: newWords,
@@ -590,7 +612,10 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
   function finaleStop() {
     if (!finaleState) return;
     const isGrandWin = finaleState.level === 5;
-    setFinaleState({ ...finaleState, endReason: isGrandWin ? "grand_win" : "stopped" });
+    setFinaleState({
+      ...finaleState,
+      endReason: isGrandWin ? "grand_win" : "stopped",
+    });
     setPhase("finale_end");
   }
 
@@ -1350,10 +1375,17 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               isActive ? "pyr-finale-ladder-row--active" : "",
               isDone ? "pyr-finale-ladder-row--done" : "",
               isSafety ? "pyr-finale-ladder-row--safety" : "",
-            ].filter(Boolean).join(" ")}
+            ]
+              .filter(Boolean)
+              .join(" ")}
           >
-            <span className="pyr-finale-ladder-level">Niv.{l.level}{isSafety ? " 🛡" : ""}</span>
-            <span className="pyr-finale-ladder-prize">{l.prize.toLocaleString("fr-FR")} €</span>
+            <span className="pyr-finale-ladder-level">
+              Niv.{l.level}
+              {isSafety ? " 🛡" : ""}
+            </span>
+            <span className="pyr-finale-ladder-prize">
+              {l.prize.toLocaleString("fr-FR")} €
+            </span>
           </div>
         );
       })}
@@ -1368,10 +1400,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
     return (
       <div className="pyr-root">
         <div className="pyr-setup">
-          <div className="pyr-round-label" style={{ color: TEAM_COLORS[winnerTeam] }}>
+          <div
+            className="pyr-round-label"
+            style={{ color: TEAM_COLORS[winnerTeam] }}
+          >
             La Finale — Équipe {winnerTeam + 1}
           </div>
-          <div className="pyr-role-card" style={{ borderColor: TEAM_COLORS[winnerTeam] }}>
+          <div
+            className="pyr-role-card"
+            style={{ borderColor: TEAM_COLORS[winnerTeam] }}
+          >
             <div className="pyr-role">
               <span className="pyr-role-icon">🎤</span>
               <strong>{finaleHinter}</strong>
@@ -1394,8 +1432,18 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
             </thead>
             <tbody>
               {[...FINALE_LEVELS].reverse().map((l) => (
-                <tr key={l.level} className={l.level === FINALE_SAFETY_LEVEL ? "pyr-finale-table-safety" : ""}>
-                  <td>{l.level}{l.level === FINALE_SAFETY_LEVEL ? " 🛡" : ""}</td>
+                <tr
+                  key={l.level}
+                  className={
+                    l.level === FINALE_SAFETY_LEVEL
+                      ? "pyr-finale-table-safety"
+                      : ""
+                  }
+                >
+                  <td>
+                    {l.level}
+                    {l.level === FINALE_SAFETY_LEVEL ? " 🛡" : ""}
+                  </td>
                   <td>{l.prize.toLocaleString("fr-FR")} €</td>
                   <td>{l.wordCount}</td>
                 </tr>
@@ -1404,10 +1452,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           </table>
           <div className="pyr-rules-mini">
             <p>Trouver 5 mots pour passer au niveau suivant</p>
-            <p>Max {FINALE_HINTS_PER_WORD} indices par mot · Passer élimine le mot</p>
+            <p>
+              Max {FINALE_HINTS_PER_WORD} indices par mot · Passer élimine le
+              mot
+            </p>
             <p>Niveau 2 🛡 est votre filet de sécurité</p>
           </div>
-          <button className="pyr-btn pyr-btn--primary" onClick={() => setPhase("finale_playing")}>
+          <button
+            className="pyr-btn pyr-btn--primary"
+            onClick={() => setPhase("finale_playing")}
+          >
             C'est parti !
           </button>
         </div>
@@ -1417,7 +1471,8 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
 
   // ── FINALE PLAYING ─────────────────────────────────────────────────────────
   if (phase === "finale_playing" && finaleState) {
-    const { winnerTeam, level, words, currentWordIdx, foundCount, hintsLeft } = finaleState;
+    const { winnerTeam, level, words, currentWordIdx, foundCount, hintsLeft } =
+      finaleState;
     const currentWord = words[currentWordIdx];
     const levelCfg = FINALE_LEVELS.find((l) => l.level === level)!;
     const eliminated = words.filter((w) => w.status === "eliminated").length;
@@ -1429,10 +1484,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           {renderFinaleLadder(level)}
           <div className="pyr-game">
             <div className="pyr-header">
-              <div className="pyr-round-label" style={{ color: TEAM_COLORS[winnerTeam], margin: 0 }}>
-                Finale · Niv.{level} — {levelCfg.prize.toLocaleString("fr-FR")} €
+              <div
+                className="pyr-round-label"
+                style={{ color: TEAM_COLORS[winnerTeam], margin: 0 }}
+              >
+                Finale · Niv.{level} — {levelCfg.prize.toLocaleString("fr-FR")}{" "}
+                €
               </div>
-              <span className={`pyr-timer${finaleTimeLeft <= 20 ? " pyr-timer--urgent" : ""}`}>
+              <span
+                className={`pyr-timer${finaleTimeLeft <= 20 ? " pyr-timer--urgent" : ""}`}
+              >
                 {finaleTimeLeft}s
               </span>
             </div>
@@ -1453,11 +1514,15 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               ))}
             </div>
             <div className="pyr-counters">
-              <span className="pyr-counter pyr-counter--correct">✓ {foundCount}/{FINALE_WORDS_NEEDED}</span>
+              <span className="pyr-counter pyr-counter--correct">
+                ✓ {foundCount}/{FINALE_WORDS_NEEDED}
+              </span>
               <span className="pyr-counter pyr-counter--pending">
                 ⏳ {words.filter((w) => w.status === "pending").length}
               </span>
-              <span className="pyr-counter pyr-counter--elim">🚫 {eliminated}</span>
+              <span className="pyr-counter pyr-counter--elim">
+                🚫 {eliminated}
+              </span>
             </div>
             <div className="pyr-word-dots">
               {words.map((w, i) => (
@@ -1503,24 +1568,32 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
         <div className="pyr-finale-layout">
           {renderFinaleLadder(level)}
           <div className="pyr-roundover">
-            <div className="pyr-round-label">
-              Niveau {level} réussi !
-            </div>
+            <div className="pyr-round-label">Niveau {level} réussi !</div>
             <div className="pyr-finale-prize-display">
               {wonAmount.toLocaleString("fr-FR")} €
             </div>
             <div className="pyr-word-list">
               {words.map((w, i) => (
-                <div key={i} className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}>
+                <div
+                  key={i}
+                  className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}
+                >
                   <span className="pyr-word-row-icon">
-                    {w.status === "correct" ? "✓" : w.status === "eliminated" ? "🚫" : "—"}
+                    {w.status === "correct"
+                      ? "✓"
+                      : w.status === "eliminated"
+                        ? "🚫"
+                        : "—"}
                   </span>
                   <span>{w.text}</span>
                 </div>
               ))}
             </div>
             {safetyNetAmount > 0 && (
-              <div className="pyr-finale-safety-active">🛡 Filet de sécurité : {safetyNetAmount.toLocaleString("fr-FR")} €</div>
+              <div className="pyr-finale-safety-active">
+                🛡 Filet de sécurité : {safetyNetAmount.toLocaleString("fr-FR")}{" "}
+                €
+              </div>
             )}
             {isTop ? (
               <button className="pyr-btn pyr-btn--correct" onClick={finaleStop}>
@@ -1528,10 +1601,16 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
               </button>
             ) : (
               <div className="pyr-finale-decision">
-                <button className="pyr-btn pyr-btn--forbidden" onClick={finaleStop}>
+                <button
+                  className="pyr-btn pyr-btn--forbidden"
+                  onClick={finaleStop}
+                >
                   Arrêter — garder {wonAmount.toLocaleString("fr-FR")} €
                 </button>
-                <button className="pyr-btn pyr-btn--correct" onClick={finaleContinue}>
+                <button
+                  className="pyr-btn pyr-btn--correct"
+                  onClick={finaleContinue}
+                >
                   Continuer → Niveau {level + 1}
                 </button>
               </div>
@@ -1552,20 +1631,39 @@ export function Pyramide({ onBack }: { onBack: () => void }) {
           {renderFinaleLadder(level)}
           <div className="pyr-final">
             {endReason === "grand_win" && <div className="pyr-trophy">🏆</div>}
-            <h1>{endReason === "grand_win" ? "Bravo !" : isWin ? "Félicitations !" : "Dommage !"}</h1>
-            <div className="pyr-finale-prize-display" style={{ color: isWin ? "#22c55e" : "#ef4444" }}>
+            <h1>
+              {endReason === "grand_win"
+                ? "Bravo !"
+                : isWin
+                  ? "Félicitations !"
+                  : "Dommage !"}
+            </h1>
+            <div
+              className="pyr-finale-prize-display"
+              style={{ color: isWin ? "#22c55e" : "#ef4444" }}
+            >
               {wonAmount.toLocaleString("fr-FR")} €
             </div>
             {endReason === "failed" && wonAmount === 0 && (
-              <div className="pyr-finale-safety-active" style={{ color: "#ef4444" }}>
+              <div
+                className="pyr-finale-safety-active"
+                style={{ color: "#ef4444" }}
+              >
                 Vous repartez sans filet.
               </div>
             )}
             <div className="pyr-word-list">
               {words.map((w, i) => (
-                <div key={i} className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}>
+                <div
+                  key={i}
+                  className={`pyr-word-row pyr-word-row--${w.status === "correct" ? "correct" : w.status === "eliminated" ? "eliminated" : "pending"}`}
+                >
                   <span className="pyr-word-row-icon">
-                    {w.status === "correct" ? "✓" : w.status === "eliminated" ? "🚫" : "—"}
+                    {w.status === "correct"
+                      ? "✓"
+                      : w.status === "eliminated"
+                        ? "🚫"
+                        : "—"}
                   </span>
                   <span>{w.text}</span>
                 </div>

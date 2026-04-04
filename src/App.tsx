@@ -10,7 +10,6 @@ const GAMES = [
   { id: "wheel", label: "La Roue de la Fortune", icon: "🎡", color: "#0891b2" },
   { id: "dond", label: "À prendre ou à laisser", icon: "📦", color: "#15803d" },
   { id: "pyramide", label: "Pyramide", icon: "🔺", color: "#ffff00" },
-  { id: "roulette", label: "Roulette", icon: "🎰", color: "#b91c1c" },
   { id: "famille", label: "Une Famille en Or", icon: "🏆", color: "#d97706" },
   {
     id: "qvema",
@@ -18,6 +17,7 @@ const GAMES = [
     icon: "💼",
     color: "#b45309",
   },
+  { id: "roulette", label: "Roulette", icon: "🎰", color: "#b91c1c" },
   { id: "loto", label: "Loto", icon: "🎱", color: "#7c3aed" },
 ];
 
